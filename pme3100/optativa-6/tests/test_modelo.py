@@ -5,11 +5,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from carrossel.casos import CASOS
-from carrossel.modelo import (
+from codigo.casos import CASOS
+from codigo.modelo import (
     ACELERACOES, VELOCIDADES, ErroEntrada, Movimento, Parametros, grupo_no_instante,
 )
-from carrossel.verificacao import erros_derivada, verificar
+from codigo.verificacao import erros_derivada, verificar
 
 TODOS = [pytest.param(c.p, id=c.nome) for c in CASOS.values()] + [
     # Lei sem forma fechada: força o caminho numérico (DOP853).
@@ -104,7 +104,7 @@ def test_regra_de_alternancia() -> None:
 @pytest.mark.parametrize("caso", [1, 3])
 def test_alternancia_nos_quadros_desenhados(caso: int) -> None:
     """Nos múltiplos pares de Δt só aparecem velocidades; nos ímpares, só acelerações."""
-    from carrossel.animacao import Escalas, VistaTopo, conferir_alternancia
+    from codigo.animacao import Escalas, VistaTopo, conferir_alternancia
     import matplotlib.pyplot as plt
 
     mov = Movimento(CASOS[caso].p)
@@ -122,7 +122,7 @@ def test_alternancia_nos_quadros_desenhados(caso: int) -> None:
 
 
 def test_escala_fixa_maior_vetor_06R() -> None:
-    from carrossel.animacao import Escalas
+    from codigo.animacao import Escalas
 
     mov = Movimento(CASOS[2].p)
     esc = Escalas.calcular(mov)

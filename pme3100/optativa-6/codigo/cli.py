@@ -1,4 +1,4 @@
-"""Linha de comando: ``python -m carrossel --caso 1``, ``--todos`` ou funções próprias."""
+"""Linha de comando: ``python -m codigo --caso 1``, ``--todos`` ou funções próprias."""
 
 from __future__ import annotations
 
@@ -50,10 +50,10 @@ def tabela_instante(mov: Movimento, titulo: str) -> str:
 
 def _argumentos() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        prog="python -m carrossel",
+        prog="python -m codigo",
         description="Carrossel e formiga: lei de movimento, velocidades, acelerações, "
                     "animação e relatório em PDF.",
-        epilog='Ex.: python -m carrossel --omega "0.5+0.2*t" --v "0.3" --R 2 --phi0 0 --dt 0.5 --t 1.7',
+        epilog='Ex.: python -m codigo --omega "0.5+0.2*t" --v "0.3" --R 2 --phi0 0 --dt 0.5 --t 1.7',
     )
     qual = ap.add_mutually_exclusive_group()
     qual.add_argument("--caso", type=int, choices=sorted(CASOS), help="caso pronto")
@@ -66,7 +66,7 @@ def _argumentos() -> argparse.ArgumentParser:
     ap.add_argument("--t", type=float, help="instante dos itens (b) e (c) [s] (padrão t_f/2)")
     ap.add_argument("--tmax", type=float, default=60.0, help="horizonte se não chegar ao centro [s]")
     ap.add_argument("--nome", default="personalizado", help="sufixo dos arquivos do caso próprio")
-    ap.add_argument("--saida", type=Path, default=Path("saida"), help="pasta dos PDF/MP4/GIF")
+    ap.add_argument("--saida", type=Path, default=Path("resultado"), help="pasta dos PDF/MP4/GIF")
     ap.add_argument("--build", type=Path, help="pasta de trabalho (LaTeX e quadros); padrão: temporária")
     ap.add_argument("--sem-video", action="store_true", help="não grava MP4/GIF (o PDF mantém a animação)")
     ap.add_argument("--so-tabela", action="store_true", help="só imprime a tabela do instante pedido")
