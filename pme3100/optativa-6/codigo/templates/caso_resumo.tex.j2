@@ -1,0 +1,62 @@
+%# Resumo de um caso: o que mostra, dados, valores no instante pedido e figura-resumo.
+\textbf{O que este caso mostra.} \VAR{descricao}
+
+\vspace{0.4em}
+\noindent
+\begin{minipage}[t]{0.52\linewidth}
+\vspace{0pt}
+\small
+\textbf{Dados do caso}\par\smallskip
+\begin{tabular}{@{}l>{$}l<{$}@{}}
+\toprule
+raio do carrossel & R = \VAR{lx.R_dec}\ \unit{m} \\
+ângulo inicial & \varphi_0 = \VAR{lx.phi0}\ \unit{rad} \\
+velocidade angular & \omega(t) = \VAR{lx.omega_dec}\ \unit{rad/s} \\
+velocidade relativa & v(t) = \VAR{lx.v_dec}\ \unit{m/s} \\
+intervalo de exibição & \Delta t = \num[round-mode=none]{\VAR{dt_txt}}\ \unit{s} \\
+instante pedido & t = \VAR{n(mov.t_instante)}\ \unit{s} \\
+\midrule
+\BLOCK{if mov.chegou}
+fim do movimento & t_f = \VAR{n(mov.t_f)}\ \unit{s} \\
+\BLOCK{else}
+horizonte (não chega) & t_{\max} = \VAR{n(mov.t_f)}\ \unit{s} \\
+\BLOCK{endif}
+lei de movimento & \text{\VAR{"simbólica (exata)" if mov.simbolico else "numérica"}} \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\textbf{No instante pedido} ($t = \VAR{n(mov.t_instante)}$\,s)\par\smallskip
+\begin{tabular}{@{}l>{$}l<{$}@{}}
+posição & r = \VAR{n(s.r)}\ \unit{m},\ \varphi = \VAR{n(s.phi)}\ \unit{rad} \\
+velocidade absoluta & |\vb{v}_{\mathrm{abs}}| = \VAR{linhas[2].mod_num}\ \unit{m/s} \\
+aceleração absoluta & |\vb{a}_{\mathrm{abs}}| = \VAR{linhas[8].mod_num}\ \unit{m/s^2} \\
+de Coriolis & |\vb{a}_{\mathrm{cor}}| = \VAR{linhas[7].mod_num}\ \unit{m/s^2} \\
+\end{tabular}
+
+\medskip
+\BLOCK{if tudo_ok}
+\textcolor{varr}{$\checkmark$}\ \small Todas as verificações numéricas da seção~\ref{sec:verif-\VAR{nome}} passaram.
+\BLOCK{else}
+\textcolor{acor}{$\times$}\ \small Há verificações reprovadas: ver seção~\ref{sec:verif-\VAR{nome}}.
+\BLOCK{endif}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.45\linewidth}
+\vspace{0pt}
+\centering
+\captionsetup{hypcap=false}
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/resumo.pdf}\par
+\captionof{figure}{Trajetória absoluta de $F$ (cinza, do claro ao escuro com o tempo), com
+$\vb{v}_{\mathrm{abs}}$ nos múltiplos pares de $\Delta t$ e $\vb{a}_{\mathrm{abs}}$ nos ímpares,
+nas mesmas escalas da animação.}
+\label{fig:resumo-\VAR{nome}}
+\end{minipage}
+
+\BLOCK{if not mov.chegou}
+\begin{alerta}
+\textbf{Atenção:} a formiga não chega ao centro até $t_{\max} = \VAR{n(mov.t_f)}$\,s;
+o movimento foi analisado só no intervalo $[0,\,t_{\max}]$.
+\end{alerta}
+\BLOCK{endif}
+

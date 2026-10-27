@@ -98,27 +98,44 @@ def main(argv: list[str] | None = None) -> int:
             print(f"erro ({c.titulo}): {erro}", file=sys.stderr)
             return 2
 
-    falhou = False
-    for c, mov in zip(casos, movimentos):
-        print(tabela_instante(mov, f"{c.titulo}: {c.rotulo}"))
-        if a.so_tabela:
-            print()
-            continue
-        from .relatorio import gerar  # importa matplotlib/jinja só quando precisa
+    if a.so_tabela:
+        for c, mov in zip(casos, movimentos):
+            print(tabela_instante(mov, f"{c.titulo}: {c.rotulo}") + "\n")
+        return 0
 
-        inicio = time.time()
-        with tempfile.TemporaryDirectory(prefix=f"carrossel-{c.nome}-") as tmp:
-            build = (a.build / c.nome) if a.build else Path(tmp)
-            res = gerar(mov, c.titulo, c.rotulo, c.descricao, c.nome, a.saida, build,
+    from .relatorio import gerar, gerar_conjunto  # importa matplotlib/jinja só quando precisa
+
+    falhou = False
+    # Uma raiz de trabalho para a execução toda: as figuras e quadros de cada caso precisam
+    # continuar no disco até o PDF conjunto ser compilado.
+    with tempfile.TemporaryDirectory(prefix="carrossel-") as tmp:
+        raiz = a.build or Path(tmp)
+        resultados = []
+        for c, mov in zip(casos, movimentos):
+            print(tabela_instante(mov, f"{c.titulo}: {c.rotulo}"))
+            inicio = time.time()
+            res = gerar(mov, c.titulo, c.rotulo, c.descricao, c.nome, a.saida, raiz / c.nome,
                         video=not a.sem_video)
-        print(f"  → {res.pdf}" + (f", {res.mp4}, {res.gif}" if res.mp4 else "")
-              + f"   ({time.time() - inicio:.0f} s)")
-        if not mov.chegou:
-            print(f"  aviso: a formiga não chega ao centro até t_max = {num(mov.tmax)} s.")
-        if not res.checagens_ok:
-            print("  ATENÇÃO: há verificações reprovadas (seção Verificação do PDF).")
-            falhou = True
-        for aviso in res.avisos_latex:
-            print(f"  LaTeX: {aviso}")
-        print()
+            resultados.append(res)
+            print(f"  → {res.pdf}" + (f", {res.mp4}, {res.gif}" if res.mp4 else "")
+                  + f"   ({time.time() - inicio:.0f} s)")
+            if not mov.chegou:
+                print(f"  aviso: a formiga não chega ao centro até t_max = {num(mov.tmax)} s.")
+            falhou |= _relatar(res)
+            print()
+        if len(resultados) > 1:
+            inicio = time.time()
+            res = gerar_conjunto(resultados, a.saida, raiz)
+            print(f"Conjunto → {res.pdf}" + (f", {res.mp4}" if res.mp4 else "")
+                  + f"   ({time.time() - inicio:.0f} s)")
+            falhou |= _relatar(res)
     return 1 if falhou else 0
+
+
+def _relatar(res) -> bool:  # noqa: ANN001 (relatorio.Resultado, importado sob demanda)
+    """Imprime avisos de LaTeX e checagens reprovadas; True se alguma checagem falhou."""
+    for aviso in res.avisos_latex:
+        print(f"  LaTeX: {aviso}")
+    if not res.checagens_ok:
+        print("  ATENÇÃO: há verificações reprovadas (seção Verificação do PDF).")
+    return not res.checagens_ok
