@@ -486,3 +486,41 @@ def conferir_alternancia(mov: Movimento, escalas: Escalas) -> tuple[int, bool]:
             testados += 1
     plt.close(fig)
     return testados, ok
+
+
+def cartao(caminho: Path, titulo: str, rotulo: str, dados: tuple[str, str], i: int, n: int) -> None:
+    """Cartão de título 1920×1080 que abre cada caso no vídeo conjunto."""
+    aplicar_estilo()
+    fig = plt.figure(figsize=(1920 / 144, 1080 / 144), facecolor="white")
+    fig.text(0.08, 0.80, "PME3100 · Mecânica I · Carrossel e formiga", fontsize=16, color=CINZA)
+    fig.add_artist(Rectangle((0.08, 0.765), 0.84, 0.005, transform=fig.transFigure,
+                             color=CORES["v_abs"]))
+    fig.text(0.08, 0.62, titulo, fontsize=46, fontweight="bold", color=TINTA)
+    fig.text(0.08, 0.53, rotulo, fontsize=24, color=TINTA)
+    fig.text(0.08, 0.40, dados[0], fontsize=18, color=CINZA)
+    fig.text(0.08, 0.34, dados[1], fontsize=18, color=CINZA)
+    for k in range(n):  # marcadores de progresso: caso atual cheio, demais vazados
+        fig.add_artist(Circle((0.08 + 0.025 * k + 0.006, 0.15), 0.006, transform=fig.transFigure,
+                              fc=CORES["v_abs"] if k + 1 == i else "white", ec=CORES["v_abs"], lw=1.5))
+    fig.text(0.08 + 0.025 * n + 0.01, 0.15, f"caso {i} de {n}", fontsize=15, color=CINZA,
+             va="center")
+    fig.savefig(caminho, dpi=144, facecolor="white")
+    plt.close(fig)
+
+
+def juntar_videos(partes: list[tuple[Path, Path]], destino: Path, segundos: float = 3.0,
+                  fps: int = 30) -> None:
+    """Concatena [cartão, vídeo] de cada caso num só MP4; os cartões entram e saem com fade."""
+    args = [ferramenta("ffmpeg"), "-y", "-loglevel", "error"]
+    filtros, sequencia = [], ""
+    for k, (png, mp4) in enumerate(partes):
+        args += ["-loop", "1", "-framerate", str(fps), "-t", str(segundos), "-i", str(png),
+                 "-i", str(mp4)]
+        filtros.append(f"[{2 * k}:v]format=yuv420p,setsar=1,fade=t=in:st=0:d=0.4,"
+                       f"fade=t=out:st={segundos - 0.4}:d=0.4[c{k}]")
+        filtros.append(f"[{2 * k + 1}:v]format=yuv420p,setsar=1[v{k}]")
+        sequencia += f"[c{k}][v{k}]"
+    filtros.append(f"{sequencia}concat=n={2 * len(partes)}:v=1:a=0[saida]")
+    args += ["-filter_complex", ";".join(filtros), "-map", "[saida]", "-c:v", "libx264",
+             "-pix_fmt", "yuv420p", "-crf", "20", "-preset", "medium", "-r", str(fps), str(destino)]
+    subprocess.run(args, check=True)

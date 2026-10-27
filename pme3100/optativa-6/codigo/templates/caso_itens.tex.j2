@@ -1,0 +1,275 @@
+%# Itens (a) a (d) e verificação de um caso; H é \section (relatório único) ou \subsection (conjunto).
+%# ============================================================== (a) LEI DE MOVIMENTO
+%# Barreira explícita: placeins só age em \section, e no conjunto os itens são subseções.
+\FloatBarrier
+\VAR{H}{(a) Lei de movimento}\label{sec:lei-\VAR{nome}}
+Esta seção integra $\dot r = -v$ e $\dot\varphi = \omega$ desde $t = 0$, com $r(0) = R$ e
+$\varphi(0) = \varphi_0$, e obtém o instante $t_f$ em que a formiga chega ao centro.
+
+\begin{equation*}
+r(t) = R - \int_0^t v(\tau)\,\mathrm{d}\tau, \qquad
+\varphi(t) = \varphi_0 + \int_0^t \omega(\tau)\,\mathrm{d}\tau, \qquad
+\vb{OF}(t) = r(t)\,\vb{e}_r(t) = x(t)\,\vb{i} + y(t)\,\vb{j}.
+\end{equation*}
+
+\BLOCK{if mov.simbolico}
+Com $\omega(t) = \VAR{lx.omega_dec}$\,\unit{rad/s} e $v(t) = \VAR{lx.v_dec}$\,\unit{m/s}, as
+integrais têm forma fechada (calculadas em aritmética exata com o \texttt{sympy}):
+\begin{align*}
+r(t) &= \VAR{lx.r} \quad [\unit{m}],\\
+\varphi(t) &= \VAR{lx.phi} \quad [\unit{rad}],\\
+x(t) &= r(t)\cos\varphi(t), \qquad y(t) = r(t)\sin\varphi(t) \quad [\unit{m}].
+\end{align*}
+\BLOCK{else}
+\begin{alerta}
+\textbf{Lei obtida numericamente.} O \texttt{sympy} não encontrou forma fechada para as
+integrais de $v(t) = \VAR{lx.v_dec}$ e/ou de $\omega(t) = \VAR{lx.omega_dec}$. Por isso
+$r(t)$ e $\varphi(t)$ foram obtidas integrando $\dot r = -v$, $\dot\varphi = \omega$ com
+o método de Dormand–Prince de 8.ª ordem (DOP853, tolerâncias relativa e absoluta de
+$10^{-12}$), com interpolação contínua. Velocidades e acelerações continuam usando
+$\omega$, $\alpha$, $v$ e $\dot v$ exatas.
+\end{alerta}
+\BLOCK{endif}
+Derivadas usadas em (c): $\alpha(t) = \dot\omega = \VAR{lx.alpha_dec}$\,\unit{rad/s^2} e
+$\dot v(t) = \VAR{lx.vdot_dec}$\,\unit{m/s^2}.
+
+\BLOCK{if mov.chegou}
+\textbf{Fim do movimento.} $t_f$ é a raiz de $r(t_f) = 0$, obtida pelo método de Brent no
+primeiro intervalo em que $r$ muda de sinal: $t_f = \VAR{n(mov.t_f)}$\,s, com
+$\varphi(t_f) = \VAR{n(mov.phi(mov.t_f))}$\,rad. Depois disso a formiga está no centro e o
+movimento termina.
+\BLOCK{else}
+\textbf{Fim do movimento.} $r(t)$ não se anula até $t_{\max} = \VAR{n(mov.t_f)}$\,s: a
+formiga não chega ao centro nesse horizonte, e a análise para em $t_{\max}$.
+\BLOCK{endif}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/lei.pdf}
+\caption{Lei de movimento: $r(t)$ e $\varphi(t)$ até $t_f$. O ponto marca o instante pedido
+nos itens (b) e (c).\BLOCK{if omega_neg} Nas faixas cinzentas $\omega<0$ e o carrossel gira no
+sentido horário: $\varphi$ decresce.\BLOCK{endif}}
+\label{fig:lei-\VAR{nome}}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/trajetorias.pdf}
+\caption{À esquerda, a trajetória absoluta de $F$ no plano fixo $(x,y)$. À direita, a
+trajetória relativa no referencial do carrossel (eixos $x_1, y_1$ solidários ao disco, com
+$x_1$ ao longo da reta da formiga), que é o segmento radial de $r = R$ até $O$.
+Os pontos marcam os múltiplos de $\Delta t$.}
+\label{fig:trajetorias-\VAR{nome}}
+\end{figure}
+
+%# ============================================================ (b)(c) INSTANTE PEDIDO
+\FloatBarrier
+\VAR{H}{(b) e (c) Velocidades e acelerações no instante pedido}\label{sec:instante-\VAR{nome}}
+Esta seção aplica as equações \eqref{eq:vel} e \eqref{eq:acc} ao instante
+$t = \VAR{n(mov.t_instante)}$\,s: a tabela~\ref{tab:instante-\VAR{nome}} traz o resultado nas bases móvel e
+fixa, e as contas abaixo mostram os valores substituídos passo a passo.
+
+\begin{table}[htbp]
+\centering
+\caption{Vetores no instante $t = \VAR{n(mov.t_instante)}$\,s. Componentes na base móvel
+$(\vb{e}_r,\vb{e}_\varphi)$ e na base fixa $(\vb{i},\vb{j})$, com 4 algarismos significativos.}
+\label{tab:instante-\VAR{nome}}
+\small
+\sisetup{round-mode=none}
+\begin{tabular}{@{}l>{$}l<{$}\BLOCK{for f in fmt_instante}S[table-format=\VAR{f}]\BLOCK{endfor}l@{}}
+\toprule
+ & & \multicolumn{2}{c}{base móvel} & \multicolumn{2}{c}{base fixa} & & \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+ & \text{vetor} & \cab{$\vb{e}_r$} & \cab{$\vb{e}_\varphi$} & \cab{$\vb{i}$} & \cab{$\vb{j}$} & \cab{módulo} & unidade \\
+\midrule
+\BLOCK{for l in linhas}
+\BLOCK{if l.tipo == "sub"}
+ & {\color{cinza}\VAR{l.simbolo}\ (\VAR{l.expr})} & {\color{cinza}\num{\VAR{l.er}}} & {\color{cinza}\num{\VAR{l.ephi}}} & {\color{cinza}\num{\VAR{l.i}}} & {\color{cinza}\num{\VAR{l.j}}} & {\color{cinza}\num{\VAR{l.mod}}} & {\color{cinza}\VAR{l.unid}} \\
+\BLOCK{else}
+\seta{\VAR{l.cor}} & \VAR{l.simbolo} & \VAR{l.er} & \VAR{l.ephi} & \VAR{l.i} & \VAR{l.j} & \VAR{l.mod} & \VAR{l.unid} \\
+\BLOCK{if l.simbolo.endswith("{abs}}") and l.tipo == "vel"}
+\midrule
+\BLOCK{endif}
+\BLOCK{endif}
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{table}
+
+No instante: $r = \VAR{n(s.r)}$\,\unit{m}, $\varphi = \VAR{n(s.phi)}$\,\unit{rad},
+$\omega = \VAR{n(s.omega)}$\,\unit{rad/s}, $\alpha = \VAR{n(s.alpha)}$\,\unit{rad/s^2},
+$v = \VAR{n(s.v)}$\,\unit{m/s} e $\dot v = \VAR{n(s.vdot)}$\,\unit{m/s^2}.
+\begin{align*}
+\BLOCK{for c in contas}
+\VAR{c}\BLOCK{if not loop.last}\\\BLOCK{endif}
+
+\BLOCK{endfor}
+\end{align*}
+
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/instante.pdf}
+\caption{Ampliação em torno de $F$ no instante pedido: velocidades (esquerda) e
+acelerações (direita) aplicadas em $F$, nas mesmas escalas fixas da animação
+(\VAR{escala_v}; \VAR{escala_a}). Na esquerda, o tracejado fino fecha o paralelogramo
+$\vb{v}_{\mathrm{abs}} = \vb{v}_{\mathrm{rel}} + \vb{v}_{\mathrm{arr}}$; o círculo branco
+é o centro $O$ e o tracejado grosso, a reta da formiga.}
+\label{fig:instante-\VAR{nome}}
+\end{figure}
+
+%# ================================================================ TABELA TEMPORAL
+\FloatBarrier
+\VAR{H}{Tabela temporal}\label{sec:tabela-\VAR{nome}}
+Esta seção lista os módulos dos sete vetores em cada múltiplo de $\Delta t = \num[round-mode=none]{\VAR{dt_txt}}$\,s,
+que são os instantes em que a animação troca o grupo exibido (coluna G: V = velocidades,
+A = acelerações).
+
+{\footnotesize
+\setlength{\tabcolsep}{3.3pt}
+\sisetup{round-mode=none}
+%# Colunas r com \num (valores já com 4 algarismos): S dentro de longtable gerava
+%# overfull de 0,5 pt por célula.
+\begin{longtable}{@{}rrrrc*{7}{r}@{}}
+\caption{Módulos dos vetores nos múltiplos de $\Delta t$ (4 algarismos significativos).}\label{tab:temporal-\VAR{nome}}\\
+\toprule
+ & & & & & \multicolumn{3}{c}{velocidades [\unit{m/s}]} & \multicolumn{4}{c}{acelerações [\unit{m/s^2}]} \\
+\cmidrule(lr){6-8}\cmidrule(l){9-12}
+$k$ & \cab{$t$ [\unit{s}]} & \cab{$r$ [\unit{m}]} & \cab{$\varphi$ [\unit{rad}]} & G &
+\cab{$|\vb{v}_{\mathrm{rel}}|$} & \cab{$|\vb{v}_{\mathrm{arr}}|$} & \cab{$|\vb{v}_{\mathrm{abs}}|$} &
+\cab{$|\vb{a}_{\mathrm{rel}}|$} & \cab{$|\vb{a}_{\mathrm{arr}}|$} & \cab{$|\vb{a}_{\mathrm{cor}}|$} & \cab{$|\vb{a}_{\mathrm{abs}}|$} \\
+\midrule
+\endfirsthead
+\toprule
+$k$ & \cab{$t$} & \cab{$r$} & \cab{$\varphi$} & G & \cab{$|\vb{v}_{\mathrm{rel}}|$} & \cab{$|\vb{v}_{\mathrm{arr}}|$} & \cab{$|\vb{v}_{\mathrm{abs}}|$} &
+\cab{$|\vb{a}_{\mathrm{rel}}|$} & \cab{$|\vb{a}_{\mathrm{arr}}|$} & \cab{$|\vb{a}_{\mathrm{cor}}|$} & \cab{$|\vb{a}_{\mathrm{abs}}|$} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\BLOCK{for l in temporal}
+\VAR{l.k} & \num{\VAR{l.nums[0]}} & \num{\VAR{l.nums[1]}} & \num{\VAR{l.nums[2]}} & \textcolor{\VAR{"vabs" if l.grupo == "V" else "acor"}}{\VAR{l.grupo}}\BLOCK{for x in l.nums[3:]} & \num{\VAR{x}}\BLOCK{endfor} \\
+\BLOCK{endfor}
+\end{longtable}
+}
+
+%# ======================================================================== GRÁFICOS
+%# Seção, frase e gráfico juntos: se não couberem (~13 cm), a seção começa na próxima página.
+\FloatBarrier
+\needspace{13cm}
+\VAR{H}{Módulos ao longo do tempo}\label{sec:graficos-\VAR{nome}}
+Esta seção mostra como cada parcela evolui no movimento todo, com as cores da animação; as
+faixas de fundo indicam o grupo exibido em cada intervalo de $\Delta t$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/modulos.pdf}
+\caption{Módulos das velocidades (acima) e das acelerações (abaixo). Na aceleração de
+arrastamento, as curvas finas separam a parcela tangencial $|\vb*{\alpha}\wedge\vb{OF}| = |\alpha| r$
+(pontilhada) da centrípeta $|\vb*{\omega}\wedge(\vb*{\omega}\wedge\vb{OF})| = \omega^2 r$ (tracejada).}
+\label{fig:modulos-\VAR{nome}}
+\end{figure}
+
+%# ======================================================================= ANIMAÇÃO
+\FloatBarrier
+\VAR{H}{(d) Animação}\label{sec:animacao-\VAR{nome}}
+Esta seção \BLOCK{if animado}traz\BLOCK{else}resume\BLOCK{endif} a animação em vista de topo (o carrossel com seus raios, a reta da formiga
+tracejada e a seta curva de $\vb*{\omega}$, que inverte quando $\omega$ troca de sinal) e a
+formiga $F$ com o rastro da trajetória absoluta. A cada múltiplo $k\Delta t$ troca-se o grupo
+exibido: velocidades se $k$ é par, acelerações se $k$ é ímpar; as setas dos dois grupos nunca
+aparecem juntas. O painel lateral mostra sempre os módulos dos dois grupos, lado a lado; a borda
+colorida indica de qual grupo são as setas na cena.
+
+\BLOCK{if animado}
+\begin{figure}[htbp]
+\centering
+\animategraphics[controls={play,step,stop,speed}, loop, width=\linewidth, poster=first,
+  buttonsize=1.1em]{\VAR{fps_quadros}}{\VAR{dir}/quadros/q-}{0000}{\VAR{"%04d" % (n_quadros - 1)}}
+\caption{Animação embutida (\VAR{n_quadros} quadros a \VAR{fps_quadros}\,quadros/s\BLOCK{if fator != 1},
+tempo físico $\times$\VAR{num(fator, 3)}\BLOCK{else}, tempo real\BLOCK{endif}). Use os botões
+abaixo da imagem para reproduzir, pausar e avançar quadro a quadro. As escalas são fixas durante
+toda a animação: \VAR{escala_v} e \VAR{escala_a}.}
+\label{fig:animacao-\VAR{nome}}
+\end{figure}
+
+\begin{nota}
+\textbf{Onde a animação toca.} O pacote \texttt{animate} funciona no Adobe Acrobat Reader,
+no Okular e no PDF-XChange; navegadores e a maioria dos visualizadores leves mostram só o
+primeiro quadro. \BLOCK{if mp4}O mesmo vídeo, em alta resolução, está nos arquivos
+\texttt{\detokenize{\VAR{mp4}}} (30\,quadros/s) e \texttt{\detokenize{\VAR{gif}}}, ao lado deste PDF. \BLOCK{endif}
+A figura~\ref{fig:quadros-\VAR{nome}} mostra os quadros-chave para leitura no papel.
+\end{nota}
+
+\BLOCK{else}
+\begin{nota}
+\textbf{Animação em vídeo.} Este documento é estático: a figura~\ref{fig:quadros-\VAR{nome}}
+resume a animação nos múltiplos de $\Delta t$.\BLOCK{if mp4} A animação completa deste caso está em
+\texttt{\detokenize{\VAR{mp4}}} (30\,quadros/s\BLOCK{if fator != 1}, tempo físico
+$\times$\VAR{num(fator, 3)}\BLOCK{else}, tempo real\BLOCK{endif}), e os três casos em sequência estão em
+\texttt{\detokenize{animacao_todos.mp4}}.\BLOCK{endif} As escalas são fixas durante toda a
+animação: \VAR{escala_v} e \VAR{escala_a}.
+\end{nota}
+
+\BLOCK{endif}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/quadros.pdf}
+\caption{Quadros-chave nos múltiplos de $\Delta t$\BLOCK{if n_quadros_chave < temporal|length}
+(\VAR{n_quadros_chave} de \VAR{temporal|length}, igualmente espaçados)\BLOCK{endif}:
+o grupo exibido alterna entre velocidades e acelerações, com as mesmas cores e escalas da animação.}
+\label{fig:quadros-\VAR{nome}}
+\end{figure}
+
+%# ===================================================================== VERIFICAÇÃO
+\FloatBarrier
+\VAR{H}{Verificação}\label{sec:verif-\VAR{nome}}
+Esta seção confere os resultados deste caso com testes independentes das fórmulas de
+composição; os mesmos testes, mais os de validação de entrada, rodam com \texttt{pytest}.
+
+O teste decisivo é o da derivada numérica: deriva-se a posição absoluta $\vb{OF}(t)$ por
+diferenças centrais de 5 pontos ($h = \qty[round-mode=none]{1e-3}{s}$, erro de truncamento $O(h^4)$) e
+compara-se com $\vb{v}_{\mathrm{abs}}$; deriva-se $\vb{v}_{\mathrm{abs}}$ e compara-se com
+$\vb{a}_{\mathrm{abs}}$. Esse teste não usa as fórmulas de arrastamento e de Coriolis, então
+só passa se elas estiverem corretas.
+
+\begin{table}[htbp]
+\centering
+\caption{Checagens numéricas deste caso.}
+\label{tab:verif-\VAR{nome}}
+\small
+\sisetup{round-precision=2}
+\begin{tabular}{@{}p{10.2cm}S[table-format=1.1e-2]S[table-format=1.0e-2, round-mode=none]c@{}}
+\toprule
+checagem & \cab{valor} & \cab{tolerância} & \\
+\midrule
+\BLOCK{for c in checagens}
+\VAR{c.descricao} & \VAR{bruto(c.valor)} & \VAR{"%.0e" % c.tolerancia} & \BLOCK{if c.aprovado}\ok\BLOCK{else}\falha\BLOCK{endif} \\
+\BLOCK{endfor}
+alternância: setas visíveis = vetores não nulos do grupo de $\lfloor t/\Delta t\rfloor$
+(\VAR{n_alt} quadros testados) & \cab{---} & \cab{---} & \BLOCK{if alt_ok}\ok\BLOCK{else}\falha\BLOCK{endif} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{\VAR{dir}/fig/erros.pdf}
+\caption{Erro relativo entre a derivada numérica e a analítica ao longo do movimento,
+normalizado pelo maior módulo do vetor. Ele fica na faixa do arredondamento de ponto
+flutuante, muito abaixo da tolerância.}
+\label{fig:erros-\VAR{nome}}
+\end{figure}
+
+\BLOCK{if tudo_ok}
+\begin{nota}
+\textbf{Resultado:} todas as \VAR{checagens|length + 1} checagens passaram.\BLOCK{if mov.simbolico} Como a lei
+de movimento é exata, a composição confere com a derivada simbólica de $x(t)$ e $y(t)$ até o
+arredondamento da máquina.\BLOCK{endif}
+\end{nota}
+\BLOCK{else}
+\begin{alerta}
+\textbf{Atenção:} há checagens reprovadas na tabela~\ref{tab:verif-\VAR{nome}}.
+\end{alerta}
+\BLOCK{endif}
+\FloatBarrier

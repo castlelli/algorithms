@@ -8,6 +8,7 @@ quadros-chave e aponta o MP4/GIF.
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -41,6 +42,7 @@ class Resultado:
     gif: Path | None
     avisos_latex: list[str] = field(default_factory=list)
     checagens_ok: bool = True
+    ctx: dict = field(default_factory=dict, repr=False)  # contexto do template, para o conjunto
 
 
 # ------------------------------------------------------------------------ figuras
@@ -403,9 +405,9 @@ def compilar(tex: Path) -> list[str]:
 
 
 # ---------------------------------------------------------------------- principal
-def gerar(mov: Movimento, titulo: str, rotulo: str, descricao: str, nome: str, saida: Path,
-          build: Path, video: bool = True) -> Resultado:
-    """Gera figuras, animação, PDF e (opcionalmente) MP4/GIF de um caso."""
+def preparar(mov: Movimento, titulo: str, rotulo: str, descricao: str, nome: str, saida: Path,
+             build: Path, video: bool = True) -> dict:
+    """Figuras, animação (MP4/GIF/PNG) e checagens de um caso; devolve o contexto do template."""
     aplicar_estilo()
     saida.mkdir(parents=True, exist_ok=True)
     build.mkdir(parents=True, exist_ok=True)
@@ -434,7 +436,7 @@ def gerar(mov: Movimento, titulo: str, rotulo: str, descricao: str, nome: str, s
     checagens = verificar(mov)
     linhas, fmt_instante, s = _linhas_instante(mov)
     temporal = _tabela_temporal(mov)
-    ctx = dict(
+    return dict(
         titulo=titulo, rotulo=rotulo, descricao=descricao, nome=nome, mov=mov, lx=lx, s=s,
         n=latex_num, bruto=bruto, num=num, linhas=linhas, contas=_contas_instante(s),
         fmt_instante=fmt_instante, temporal=temporal,
@@ -445,17 +447,69 @@ def gerar(mov: Movimento, titulo: str, rotulo: str, descricao: str, nome: str, s
         escala_a=esc.texto(mov.R)[1].replace("≙", r"$\widehat{=}$").replace("²", r"\textsuperscript{2}"),
         mp4=mp4.name if mp4 else None, gif=gif.name if gif else None,
         n_quadros_chave=len(quadros_chave(mov)), omega_neg=_intervalos_omega_negativa(mov),
-        cores=CORES,
+        cores=CORES, build=build, dados=dados, caminho_mp4=mp4, caminho_gif=gif,
     )
-    env = Environment(
+
+
+def _ambiente() -> Environment:
+    return Environment(
         loader=FileSystemLoader(TEMPLATES), undefined=StrictUndefined, autoescape=False,
         block_start_string=r"\BLOCK{", block_end_string="}", variable_start_string=r"\VAR{",
         variable_end_string="}", comment_start_string=r"\#{", comment_end_string="}",
         line_statement_prefix="%%", line_comment_prefix="%#", trim_blocks=True, lstrip_blocks=True,
     )
-    tex = build / f"relatorio_{nome}.tex"
-    tex.write_text(env.get_template("relatorio.tex.j2").render(**ctx), encoding="utf-8")
+
+
+def escrever_pdf(ctxs: list[dict], tex: Path, pdf: Path, animado: bool = True) -> list[str]:
+    """Um documento com o modelo uma vez só e os itens de cada caso (seções, ou subseções se
+    houver mais de um caso). Devolve os avisos do LaTeX. Com ``animado=False`` o PDF é
+    estático: sem o pacote animate, a seção (d) traz só os quadros-chave e aponta os vídeos.
+
+    O documento conjunto é compilado como um todo, e não colando os PDFs prontos: assim cada
+    animação do pacote animate mantém seu JavaScript e seus botões.
+    """
+    env = _ambiente()
+    nivel = r"\section" if len(ctxs) == 1 else r"\subsection"
+    casos = []
+    for ctx in ctxs:
+        # Caminho das figuras e quadros do caso relativo à pasta do .tex.
+        c = dict(ctx, H=nivel, animado=animado,
+                 dir=Path(os.path.relpath(ctx["build"], tex.parent)).as_posix())
+        casos.append(dict(c, resumo=env.get_template("caso_resumo.tex.j2").render(**c),
+                          itens=env.get_template("caso_itens.tex.j2").render(**c)))
+    titulo_pdf = ctxs[0]["titulo"] if len(ctxs) == 1 else "relatório conjunto"
+    tex.write_text(env.get_template("documento.tex.j2").render(
+        casos=casos, cores=CORES, n=latex_num, titulo_pdf=titulo_pdf, animado=animado),
+        encoding="utf-8")
     avisos = compilar(tex)
-    pdf = saida / f"relatorio_{nome}.pdf"
     shutil.copyfile(tex.with_suffix(".pdf"), pdf)
-    return Resultado(pdf=pdf, mp4=mp4, gif=gif, avisos_latex=avisos, checagens_ok=ctx["tudo_ok"])
+    return avisos
+
+
+def gerar(mov: Movimento, titulo: str, rotulo: str, descricao: str, nome: str, saida: Path,
+          build: Path, video: bool = True) -> Resultado:
+    """Gera figuras, animação, PDF e (opcionalmente) MP4/GIF de um caso."""
+    ctx = preparar(mov, titulo, rotulo, descricao, nome, saida, build, video)
+    pdf = saida / f"relatorio_{nome}.pdf"
+    avisos = escrever_pdf([ctx], build / f"relatorio_{nome}.tex", pdf)
+    return Resultado(pdf=pdf, mp4=ctx["caminho_mp4"], gif=ctx["caminho_gif"], avisos_latex=avisos,
+                     checagens_ok=ctx["tudo_ok"], ctx=ctx)
+
+
+def gerar_conjunto(resultados: list[Resultado], saida: Path, build: Path) -> Resultado:
+    """Junta os casos num só PDF e, se houver vídeos, num só MP4 com um cartão antes de cada caso."""
+    ctxs = [r.ctx for r in resultados]
+    pdf = saida / "relatorio_todos.pdf"
+    # Estático: as animações ficam nos relatórios individuais e no animacao_todos.mp4.
+    avisos = escrever_pdf(ctxs, build / "relatorio_todos.tex", pdf, animado=False)
+    mp4 = None
+    if all(c["caminho_mp4"] for c in ctxs):
+        mp4 = saida / "animacao_todos.mp4"
+        partes = []
+        for i, c in enumerate(ctxs, 1):
+            cartao = build / f"cartao_{c['nome']}.png"
+            anim.cartao(cartao, c["titulo"], c["rotulo"], c["dados"], i, len(ctxs))
+            partes.append((cartao, c["caminho_mp4"]))
+        anim.juntar_videos(partes, mp4)
+    return Resultado(pdf=pdf, mp4=mp4, gif=None, avisos_latex=avisos,
+                     checagens_ok=all(c["tudo_ok"] for c in ctxs))
