@@ -30,10 +30,10 @@ Não é preciso ativar o ambiente: `ffmpeg` e `tectonic` são procurados também
 cd pme3100/optativa-6
 PY=~/.local/envs/pme3100/bin/python
 
-$PY -m carrossel --caso 1        # um caso pronto (1, 2 ou 3)
-$PY -m carrossel --todos         # os três casos (~1 min cada)
-$PY -m carrossel --omega "0.5+0.2*t" --v "0.3" --R 2 --phi0 0 --dt 0.5 --t 1.7
-$PY -m carrossel --caso 3 --t 2.5 --so-tabela    # só a tabela de (b) e (c) no terminal
+$PY -m codigo --caso 1        # um caso pronto (1, 2 ou 3)
+$PY -m codigo --todos         # os três casos (~1 min cada)
+$PY -m codigo --omega "0.5+0.2*t" --v "0.3" --R 2 --phi0 0 --dt 0.5 --t 1.7
+$PY -m codigo --caso 3 --t 2.5 --so-tabela    # só a tabela de (b) e (c) no terminal
 ```
 
 | opção | significado |
@@ -43,7 +43,7 @@ $PY -m carrossel --caso 3 --t 2.5 --so-tabela    # só a tabela de (b) e (c) no 
 | `--dt` | Δt de exibição dos vetores [s] (obrigatório sem `--caso`) |
 | `--t` | o "instante qualquer" de (b) e (c) [s] (padrão: t_f/2) |
 | `--tmax` | horizonte se a formiga não chegar ao centro (padrão 60 s) |
-| `--saida`, `--build` | pasta dos resultados (padrão `saida/`) e pasta de trabalho (padrão temporária) |
+| `--saida`, `--build` | pasta dos resultados (padrão `resultado/`) e pasta de trabalho (padrão temporária) |
 | `--sem-video` | não grava MP4/GIF; o PDF mantém a animação |
 
 Nas expressões valem números, `t`, `+ - * / ** ^ ( )`, `pi`, `E` e as funções
@@ -58,14 +58,16 @@ Nas expressões valem números, `t`, `+ - * / ** ^ ( )`, `pi`, `E` e as funçõe
 | 2 | 0,2 + 0,15 t | 0,3 | α ≠ 0: aparece a parcela tangencial α∧OF |
 | 3 | 0,6 sin(0,7 t) | 0,25 + 0,2 sin(1,2 t) | o carrossel inverte o sentido em t ≈ 4,49 s; todas as parcelas são não nulas e trocam de sinal |
 
-## Saídas (em `saida/`)
+## Saídas (em `resultado/`)
 
 - `relatorio_<caso>.pdf` traz capa e resumo, modelo e dedução, (a), (b) e (c) no instante pedido,
   a tabela temporal, gráficos, (d) com a animação embutida e a grade de quadros-chave, e a verificação;
 - `animacao_<caso>.mp4` (1920×1080, 30 quadros/s) e `animacao_<caso>.gif` com a mesma animação.
 
 Na animação, a cada múltiplo kΔt troca-se o grupo exibido: as 3 velocidades se k é par,
-as 4 acelerações se k é ímpar. Os dois grupos nunca aparecem juntos. As escalas das setas são
+as 4 acelerações se k é ímpar. As setas dos dois grupos nunca aparecem juntas, mas o painel
+lateral mostra sempre os módulos de velocidades e acelerações em dois quadros lado a lado; a
+borda colorida indica de qual grupo são as setas na cena. As escalas das setas são
 fixas durante toda a animação: o maior vetor de cada grupo mede 0,6 R. Uma escala variável
 por quadro esconderia como os módulos mudam no tempo.
 
@@ -101,7 +103,7 @@ Os testes cobrem:
 ## Estrutura
 
 ```
-carrossel/
+codigo/
   modelo.py        física (sympy + numpy/scipy; não importa matplotlib)
   verificacao.py   checagens numéricas usadas pelo pytest e pelo PDF
   casos.py         os três casos prontos

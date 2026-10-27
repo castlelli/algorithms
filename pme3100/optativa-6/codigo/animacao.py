@@ -268,7 +268,7 @@ class VistaTopo:
 
 
 class PainelInfo:
-    """Painel lateral do vídeo: estado escalar, grupo exibido, legenda e escalas."""
+    """Painel lateral do vídeo: estado escalar e os módulos dos dois grupos, lado a lado."""
 
     def __init__(self, fig: plt.Figure, rect: tuple[float, float, float, float], mov: Movimento,
                  escalas: Escalas) -> None:
@@ -292,35 +292,37 @@ class PainelInfo:
         self._sentido = ax.text(0.98, 0.97 - 0.062 * 3, "", fontsize=fs - 2, color=CINZA,
                                 va="center", ha="right")
 
-        y = 0.60
-        self._faixa = Rectangle((0.0, y - 0.032), 1.0, 0.064, fc=FUNDO_VEL, ec="none")
-        ax.add_patch(self._faixa)
-        self._grupo = ax.text(0.5, y, "", fontsize=fs + 2, fontweight="bold", color=TINTA,
-                              ha="center", va="center")
-
-        self._itens: dict[str, list] = {}
-        ax.text(0.98, 0.545, "módulo", fontsize=fs - 3, color=CINZA, va="center", ha="right")
-        y = 0.50
-        for bloco, nomes in (("Velocidades", VELOCIDADES), ("Acelerações", ACELERACOES)):
+        # Dois quadros lado a lado, sempre preenchidos: as setas na cena alternam a cada Δt,
+        # mas os módulos de velocidades e acelerações ficam visíveis o tempo todo. O quadro
+        # cujas setas estão na cena ganha borda colorida e a marca "setas na cena".
+        ev, ea = escalas.texto(mov.R)
+        topo, base, larg = 0.66, 0.075, 0.485
+        self._quadros: dict[str, tuple[Rectangle, plt.Text, str]] = {}
+        self._valores: dict[str, plt.Text] = {}
+        for chave, nomes, x0, fundo, cor, titulo, escala in (
+                ("vel", VELOCIDADES, 0.0, FUNDO_VEL, CORES["v_abs"], "VELOCIDADES", ev),
+                ("acc", ACELERACOES, 1.0 - larg, FUNDO_ACC, CORES["a_cor"], "ACELERAÇÕES", ea)):
+            ax.add_patch(Rectangle((x0, topo - 0.075), larg, 0.075, fc=fundo, ec="none"))
+            moldura = Rectangle((x0, base), larg, topo - base, fc="none", ec=CINZA_CLARO, lw=1.2)
+            ax.add_patch(moldura)
+            ax.text(x0 + larg / 2, topo - 0.0375, titulo, fontsize=fs, fontweight="bold",
+                    color=TINTA, ha="center", va="center")
+            marca = ax.text(x0 + larg / 2, base - 0.04, "▲ setas na cena", fontsize=fs - 2.5,
+                            color=cor, ha="center", va="center")
+            self._quadros[chave] = (moldura, marca, cor)
+            y = topo - 0.13
             for nome in nomes:
                 grosso = nome in GROSSOS
-                seta = FancyArrowPatch((0.03, y), (0.13, y), arrowstyle="-|>", color=CORES[nome],
-                                       lw=3.4 if grosso else 2.2, mutation_scale=18 if grosso else 14)
-                ax.add_patch(seta)
-                rot = ax.text(0.16, y, ROTULOS[nome], fontsize=fs + 1, color=TINTA, va="center")
-                desc = ax.text(0.29, y, NOMES[nome], fontsize=fs - 2, color=CINZA, va="center")
-                val = ax.text(0.98, y, "", fontsize=fs, color=TINTA, va="center", ha="right")
-                self._itens[nome] = [seta, rot, desc, val]
-                y -= 0.052
-            y -= 0.02
-        ev, ea = escalas.texto(mov.R)
-        ax.text(0.02, 0.085, "Escala fixa", fontsize=fs - 2, color=CINZA, va="center")
-        self._escala = {
-            "vel": ax.text(0.27, 0.105, "velocidades: " + ev, fontsize=fs - 2, color=CORES["v_abs"],
-                           va="center"),
-            "acc": ax.text(0.27, 0.065, "acelerações: " + ea, fontsize=fs - 2, color=CORES["a_cor"],
-                           va="center"),
-        }
+                ax.add_patch(FancyArrowPatch((x0 + 0.02, y), (x0 + 0.095, y), arrowstyle="-|>",
+                                             color=CORES[nome], lw=3.4 if grosso else 2.2,
+                                             mutation_scale=18 if grosso else 14))
+                ax.text(x0 + 0.115, y, ROTULOS[nome], fontsize=fs + 1, color=TINTA, va="center")
+                ax.text(x0 + 0.115, y - 0.042, NOMES[nome], fontsize=fs - 3.5, color=CINZA,
+                        va="center")
+                self._valores[nome] = ax.text(x0 + larg - 0.02, y, "", fontsize=fs, color=TINTA,
+                                              va="center", ha="right")
+                y -= 0.11
+            ax.text(x0 + 0.02, base + 0.03, escala, fontsize=fs - 3.5, color=CINZA, va="center")
 
     def atualizar(self, e: Estado, grupo: str) -> None:
         t, r, phi, w, v = (float(x[0]) for x in (e.t, e.r, e.phi, e.omega, e.v))
@@ -328,19 +330,14 @@ class PainelInfo:
             txt.set_text(num(x, 4))
         self._extra.set_text(f"({num(np.degrees(phi), 4)}°)")
         self._sentido.set_text("anti-horário" if w > 0 else "horário" if w < 0 else "parado")
-        vel = grupo == "vel"
-        self._faixa.set_facecolor(FUNDO_VEL if vel else FUNDO_ACC)
-        self._grupo.set_text("VELOCIDADES" if vel else "ACELERAÇÕES")
-        for chave, txt in self._escala.items():
-            txt.set_alpha(1.0 if (chave == "vel") == vel else 0.35)
-        ativos = VELOCIDADES if vel else ACELERACOES
-        for nome, (seta, rot, desc, val) in self._itens.items():
-            ativo = nome in ativos
-            alfa = 1.0 if ativo else 0.28
-            for art in (seta, rot, desc, val):
-                art.set_alpha(alfa)
+        for nome, val in self._valores.items():
             unid = "m/s" if nome in VELOCIDADES else "m/s²"
-            val.set_text(f"{num(float(e.modulo(nome)[0]), 4)} {unid}" if ativo else "")
+            val.set_text(f"{num(float(e.modulo(nome)[0]), 4)} {unid}")
+        for chave, (moldura, marca, cor) in self._quadros.items():
+            ativo = chave == grupo
+            moldura.set_edgecolor(cor if ativo else CINZA_CLARO)
+            moldura.set_linewidth(2.6 if ativo else 1.2)
+            marca.set_visible(ativo)
 
 
 class LinhaTempo:
