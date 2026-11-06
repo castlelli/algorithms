@@ -1,4 +1,4 @@
-# Oscilador de Duffing · PME3100 Mecânica I
+# Oscilador de Duffing - PME3100 Mecânica I
 
 Integra por Runge-Kutta de 4ª ordem o oscilador
 

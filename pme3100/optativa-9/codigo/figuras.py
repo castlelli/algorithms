@@ -293,7 +293,7 @@ def fig_autonomo(res: dict, destino: Path) -> None:
     ax2.set_xlim(J[0], J[-1])
     ax2.spines["left"].set_visible(False)
     ax2.set_xlabel(r"impulso $J/m=\dot{x}(0)$ [m/s], a partir de $x=1$", labelpad=1.5)
-    ax2.set_title("(b) Poço final")
+    ax2.set_title("(b) Poço final", loc="left")
     ax2.legend(handles=[Patch(fc=POCO_DIR, ec=CINZA, lw=0.3, label=r"$x\to+1$"),
                         Patch(fc=POCO_ESQ, ec=CINZA, lw=0.3, label=r"$x\to-1$")], ncols=2,
                loc="lower right", bbox_to_anchor=(1.0, 0.98), handlelength=1.1, columnspacing=0.8, fontsize=7.5,
@@ -376,7 +376,7 @@ def fig_bifurcacao(res: dict, destino: Path) -> None:
         for e in (ax, bx):
             e.axvline(gam, color=COR_CASO[chave], lw=1.0, zorder=1)
         ax.annotate(f"caso {chave}", (gam, 1), xycoords=("data", "axes fraction"), xytext=(3, -9),
-                    textcoords="offset points", fontsize=8, color=TINTA, fontweight="bold",
+                    textcoords="offset points", fontsize=8, color=TINTA,
                     bbox=dict(fc="white", ec="none", pad=1.2, alpha=0.9))
     bx.text(0.205, 0.13, r"$\lambda_1>0$: caos", ha="left", fontsize=8, color=TINTA)
     bx.text(0.645, -0.19, r"$\lambda_1<0$: regime periódico", ha="right", fontsize=8, color=TINTA)
@@ -554,7 +554,7 @@ def fig_janela(res: dict, destino: Path) -> None:
         virgula(ax, "x")
     virgula(a, "y")
     a.annotate("caso A", (0.37, 1), xycoords=("data", "axes fraction"), xytext=(3, -9), textcoords="offset points",
-               fontsize=8, color=TINTA, fontweight="bold", bbox=dict(fc="white", ec="none", pad=1.2, alpha=0.9))
+               fontsize=8, color=TINTA, bbox=dict(fc="white", ec="none", pad=1.2, alpha=0.9))
     b.text(float(j["g_baixo"]) + 0.0004, 2.2, "simétrica estável", fontsize=7.5, color=TINTA)
     _salvar(fig, destino, "janela")
 

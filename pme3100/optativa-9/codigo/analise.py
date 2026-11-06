@@ -50,7 +50,6 @@ def fatias(n: int, partes: int) -> list[slice]:
     return [slice(a, b) for a, b in zip(limites[:-1], limites[1:]) if b > a]
 
 
-# --------------------------------------------------------------------- ciclo do caso A
 @em_cache
 def ciclo_a() -> dict:
     """Órbita de período 5: os 5 pontos da seção, em ordem de visita, e o teste de simetria."""
@@ -141,7 +140,6 @@ def incerteza_a() -> dict:
             "kappa": kappa, "contagem_finais": np.bincount(rot0[rot0 >= 0], minlength=5)}
 
 
-# ---------------------------------------------------------------------- Lyapunov
 def _lyap(args):
     c, x, v, nd, nm, spp = args
     return lyapunov(c, x, v, nd, nm, spp)
@@ -167,7 +165,6 @@ def expoentes() -> dict:
     return saida
 
 
-# -------------------------------------------------------------------- bifurcação
 def _bif(args):
     gam, x0, v0 = args
     c = Coef(0.3, -1.0, 1.0, gam, 1.2)
@@ -190,7 +187,6 @@ def bifurcacao() -> dict:
             "lam": np.concatenate([r[1] for r in res]), "periodo": np.concatenate([r[2] for r in res])}
 
 
-# --------------------------------------------------------------- seção do atrator C
 def _secao_longa(args):
     x, v = args
     return estroboscopico(C.coef, x, v, 1200, spp=100)[200:].reshape(-1, 2)
@@ -218,7 +214,6 @@ def atrator_c() -> dict:
             "densa": densa}
 
 
-# -------------------------------------------------------------------- sensibilidade
 @em_cache
 def sensibilidade() -> dict:
     """Pares de trajetórias: o que diverge em A, o que converge em A, e o ensaio em C."""
@@ -295,7 +290,6 @@ def sensibilidade() -> dict:
             "eps_ens": eps_ens, "t_h": t_h, "d_h": d_h}
 
 
-# ------------------------------------------------------------------- caso autônomo
 H_B = B.T / PASSOS_POR_PERIODO  # o limiar depende de h: bisseção e ensaios usam o mesmo passo
 
 
@@ -355,7 +349,6 @@ def autonomo() -> dict:
             "fracao_direita": float(np.mean(poco > 0))}
 
 
-# --------------------------------------------------------------------- caso D
 @em_cache
 def poco_unico() -> dict:
     """Amplitude do regime permanente de D contra o balanço harmônico de 1a ordem."""
@@ -382,7 +375,6 @@ def poco_unico() -> dict:
             "periodo": periodo_detectado(s_[-64:], tol=1e-5), "n_ics": 400}
 
 
-# ------------------------------------------------------------------ verificação
 @em_cache
 def convergencia() -> dict:
     """Erro global contra a referência DOP853 e fechamento do balanço de energia, por passo."""
@@ -405,7 +397,6 @@ def convergencia() -> dict:
             "h_padrao": C.T / PASSOS_POR_PERIODO}
 
 
-# ------------------------------------------------------------------- órbitas e Floquet
 @em_cache
 def floquet_casos() -> dict:
     # Os casos D e E têm período 1, e A tem período 5.
@@ -528,7 +519,6 @@ def varredura() -> dict:
     return {"gammas": gs, "x_sobe": xs, "per_sobe": ps, "x_desce": xd[::-1], "per_desce": pd[::-1]}
 
 
-# ---------------------------------------------------------- variedades e Melnikov
 def _sela(c: Coef, z: np.ndarray):
     z2, mu, res = orbita_periodica(c, z[0], z[1], 1, spp=400)
     _, J = mapa_e_jacobiana(c, z2[0], z2[1], 1, spp=400)

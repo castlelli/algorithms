@@ -94,7 +94,6 @@ class Parametros:
         return saida
 
 
-# ---------------------------------------------------------------------- integrador
 def aceleracao(t: float, x, v, c: Coef):
     """x'' isolado da equação do movimento."""
     d, a, b, g, w = c
@@ -209,7 +208,6 @@ def periodo_detectado(secao: np.ndarray, tol: float = 1e-5, maximo: int = 32) ->
     return resultado
 
 
-# ------------------------------------------------------------- expoentes de Lyapunov
 def _campo_tangente(t: float, y: np.ndarray, c: Coef) -> np.ndarray:
     """Estado (x, v) mais dois vetores tangentes (u1, w1) e (u2, w2): equação variacional."""
     d, a, b, g, w = c
@@ -261,7 +259,6 @@ def lyapunov(c: Coef, x0, v0, n_descarte: int, n_medida: int,
     return soma1 / duracao, soma2 / duracao
 
 
-# ------------------------------------------------------------- órbitas periódicas e Floquet
 def mapa_e_jacobiana(c: Coef, x: float, v: float, n_periodos: int, spp: int = PASSOS_POR_PERIODO,
                      fase_inicial: float = 0.0) -> tuple[np.ndarray, np.ndarray]:
     """Estado após n períodos da força e a matriz de monodromia, pela equação variacional."""
@@ -305,7 +302,6 @@ def amplitude_harmonica(t: np.ndarray, x: np.ndarray, omega: float) -> float:
     return float(2 * abs(np.mean(x * np.exp(-1j * omega * t))))
 
 
-# ------------------------------------------------------------ separatriz do caso A = 0
 def separatriz(p: Parametros, x_max: float = 2.6, h: float = 0.005) -> list[np.ndarray]:
     """Variedade estável da sela em x = 0, por integração para trás no tempo.
 

@@ -18,7 +18,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from . import analise, figuras, verificacao
 from .casos import CASOS
-from .estilo import COR_CASO
 
 RAIZ = Path(__file__).resolve().parent.parent
 BUILD = RAIZ / "build"
@@ -176,7 +175,7 @@ def montar_numeros(res: dict, info: dict) -> dict:
     r["janela_a"], r["janela_b"] = F(g[a], 3), F(g[b], 3)
     r["lam_bif_37"] = M(np.median(lam[i37]), 3)
     r["ws_ok"] = F(100 * fracao_ws_na_fronteira(res), 1)
-    # Revisão: Floquet, janela, variedades, controle, transiente, integridade, espectros
+    # Floquet, janela, variedades, controle, transiente, integridade, espectros
     flo, jan, rota, vd, var, ctl, tra, be, ib, lp, esp = (res[k] for k in (
         "floquet_casos", "janela_p5", "rota_janela", "variedades", "varredura", "controle_incerteza", "transiente_a",
         "bacias_e", "integridade_b", "lambda_passos", "espectros"))
@@ -359,7 +358,7 @@ def gerar_relatorio(destino: Path, refazer_figuras: bool = True) -> Path:
                       block_start_string=r"\BLOCK{", block_end_string="}", variable_start_string=r"\VAR{",
                       variable_end_string="}", comment_start_string=r"\#{", comment_end_string="}",
                       line_comment_prefix="%#", trim_blocks=True, autoescape=False)
-    corpo = env.get_template("relatorio.tex.j2").render(r=r, casos=CASOS, cores={k: c[1:] for k, c in COR_CASO.items()})
+    corpo = env.get_template("relatorio.tex.j2").render(r=r, casos=CASOS)
     BUILD.mkdir(exist_ok=True)
     shutil.copy(RAIZ / "codigo" / "modelo.py", BUILD / "modelo_listagem.py")
     for recurso in (RAIZ / "codigo" / "recursos").iterdir():  # brasões da capa
