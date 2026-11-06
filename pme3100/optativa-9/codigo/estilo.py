@@ -1,4 +1,4 @@
-"""Identidade visual das figuras: mesma tipografia do PDF e cor fixa para cada caso."""
+"""Estilo das figuras: mesma tipografia do PDF e cor fixa para cada caso."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from matplotlib.ticker import FuncFormatter
 COR_CASO = {"A": "#0072B2", "B": "#009E73", "C": "#D55E00", "D": "#CC79A7", "E": "#E69F00"}
 # Fases do ciclo de período 5, sempre acompanhadas de legenda numerada.
 COR_FASE = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00"]
-TINTA = "#1F2328"
+TINTA = "black"
 CINZA = "#6B7280"
 CINZA_CLARO = "#D7DBE0"
 GRADE = "#E6E8EB"
@@ -52,27 +52,29 @@ def aplicar_estilo() -> None:
         "mathtext.fallback": "stix",
         "font.size": 9,
         "axes.titlesize": 9.5,
-        "axes.titleweight": "bold",
-        "axes.titlelocation": "left",
+        "axes.titleweight": "normal",
+        "axes.titlelocation": "center",
         "axes.labelsize": 9,
-        "axes.edgecolor": CINZA,
-        "axes.labelcolor": TINTA,
-        "axes.titlecolor": TINTA,
-        "axes.linewidth": 0.6,
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "axes.grid": True,
+        "axes.edgecolor": "black",
+        "axes.labelcolor": "black",
+        "axes.titlecolor": "black",
+        "axes.linewidth": 0.7,
+        "axes.spines.top": True,
+        "axes.spines.right": True,
+        "axes.grid": False,
         "axes.axisbelow": True,
         "grid.color": GRADE,
         "grid.linewidth": 0.5,
-        "xtick.color": CINZA,
-        "ytick.color": CINZA,
-        "xtick.labelcolor": TINTA,
-        "ytick.labelcolor": TINTA,
+        "xtick.color": "black",
+        "ytick.color": "black",
+        "xtick.labelcolor": "black",
+        "ytick.labelcolor": "black",
         "xtick.major.width": 0.5,
         "ytick.major.width": 0.5,
         "xtick.major.size": 2.5,
         "ytick.major.size": 2.5,
+        "xtick.direction": "in",
+        "ytick.direction": "in",
         "legend.frameon": False,
         "legend.fontsize": 8,
         "lines.linewidth": 0.9,
