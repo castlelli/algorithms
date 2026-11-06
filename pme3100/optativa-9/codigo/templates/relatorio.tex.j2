@@ -1,0 +1,679 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[brazilian]{babel}
+\usepackage[a4paper,textwidth=16cm,top=2.4cm,bottom=2.4cm,headheight=14pt,headsep=0.8cm,footskip=1.0cm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+% Times New Roman em todo o documento. Ela não tem tabela de matemática: letras e números da matemática
+% vêm dela, e os demais símbolos da TeX Gyre Termes Math, um clone da Times.
+\setmainfont{times.ttf}[Path=./, BoldFont=timesbd.ttf, ItalicFont=timesi.ttf, BoldItalicFont=timesbi.ttf]
+\setmathfont{texgyretermes-math.otf}
+\setmathfont{timesi.ttf}[Path=./, range={it/{latin,Latin,greek,Greek}->up}]
+\setmathfont{times.ttf}[Path=./, range={up/{num,latin,Latin,greek,Greek}}]
+\setmathrm{times.ttf}[Path=./, BoldFont=timesbd.ttf, ItalicFont=timesi.ttf, BoldItalicFont=timesbi.ttf]
+\setmonofont{lmmono10-regular.otf}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{needspace}
+\usepackage{etoolbox}
+\usepackage{booktabs,array,tabularx}
+\usepackage{fancyvrb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,patterns,decorations.pathmorphing}
+\usepackage[font=small,labelfont=bf,labelsep=period,margin=0.3cm]{caption}
+\usepackage[section]{placeins}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[skins,breakable]{tcolorbox}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+\hypersetup{pdftitle={Oscilador de Duffing}, pdfauthor={Vinicius Sampaio Castelli de Deus}, pdfsubject={PME3100 Mecânica I}}
+
+\definecolor{tinta}{HTML}{1F2328}
+\definecolor{cinza}{HTML}{6B7280}
+\definecolor{destaque}{HTML}{0072B2}
+\definecolor{fundo}{HTML}{E9F2F8}
+\definecolor{fundoalerta}{HTML}{FBEBDD}
+\definecolor{alerta}{HTML}{D55E00}
+\BLOCK{for k, c in cores.items()}
+\definecolor{caso\VAR{k}}{HTML}{\VAR{c}}
+\BLOCK{endfor}
+
+\titleformat{\section}{\large\bfseries\color{tinta}}{\textcolor{destaque}{\thesection}}{0.7em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{tinta}}{\textcolor{destaque}{\thesubsection}}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.3em}{0.5em}
+\titlespacing*{\subsection}{0pt}{1.0em}{0.35em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{cinza}PME3100 · Oscilador de Duffing}
+\fancyhead[R]{\small\color{cinza}Vinicius S. Castelli de Deus · NUSP 17864509}
+\fancyfoot[C]{\small\color{cinza}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{cinza!40}\hrule height\headrulewidth}
+
+\newtcolorbox{nota}[1][]{enhanced, breakable, colback=fundo, colframe=destaque, boxrule=0pt, leftrule=2.5pt,
+  arc=0pt, left=8pt, right=8pt, top=5pt, bottom=5pt, #1}
+\newtcolorbox{alertab}[1][]{enhanced, breakable, colback=fundoalerta, colframe=alerta, boxrule=0pt, leftrule=2.5pt,
+  arc=0pt, left=8pt, right=8pt, top=5pt, bottom=5pt, #1}
+
+\newcommand\marca[1]{\tikz[baseline=-0.6ex]\fill[caso#1] (0,0) circle (0.9mm);\,\textbf{#1}}
+
+% Lista de referências no formato da NBR 6023: alinhada à esquerda, espaço simples, separada por uma linha.
+\newcommand\entradaref[1]{\par{\raggedright #1\par}\vspace{0.75em}}
+\newenvironment{referencias}{\small\setlength{\parskip}{0pt}}{}
+
+\newcommand\linhacapa[3]{\node[anchor=base] at ($(o)+(297.64pt,{-(#1+0.89*#2)*1pt})$) {\fontsize{#2}{#2}\selectfont\frenchspacing #3};}
+\newcommand\linhadireita[2]{\node[anchor=base east] at ($(o)+(526.3pt,{-(#1+0.89*12)*1pt})$) {\fontsize{12}{12}\selectfont\frenchspacing #2};}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\renewcommand{\arraystretch}{1.16}
+\setlist{nosep,leftmargin=1.2em,topsep=0.2em}
+\numberwithin{equation}{section}
+\AtBeginEnvironment{tabular}{\small}
+\AtBeginEnvironment{tabularx}{\small}
+
+\begin{document}
+%# ================================================================== CAPA (mesmo modelo do EP-01 de PCS3115)
+\setcounter{page}{0}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay,every node/.style={inner sep=0,text=black}]
+  \coordinate (o) at (current page.north west);
+  \node[anchor=north west] at ($(o)+(29.1pt,-12pt)$) {\includegraphics[width=133.5pt]{brasao_usp.png}};
+  \node[anchor=north east] at ($(o)+(567.5pt,-36.8pt)$) {\includegraphics[width=159pt]{logo_poli.png}};
+  \linhacapa{264.5}{14}{UNIVERSIDADE DE SÃO PAULO}
+  \linhacapa{290}{14}{ESCOLA POLITÉCNICA}
+  \linhacapa{315.5}{14}{Ciclo Básico}
+  \linhacapa{341}{14}{PME3100 - Mecânica I}
+  \linhacapa{388.5}{18}{Optativa 9}
+  \linhacapa{420.7}{18}{Oscilador de Duffing}
+  \linhadireita{474.3}{Vinicius Castelli}
+  \linhadireita{496.1}{NUSP: \textbf{17864509}}
+  \linhadireita{539.6}{Professor:}
+  \linhadireita{561.3}{Prof. Dr. Flavius Portella Ribas Martins}
+  \linhacapa{695.1}{12}{São Paulo}
+  \linhacapa{716.8}{12}{2026}
+\end{tikzpicture}
+\null\newpage
+%# ================================================================== RESUMO
+\thispagestyle{empty}
+{\color{cinza}\footnotesize ESCOLA POLITÉCNICA DA USP · PME3100 MECÂNICA I · OPTATIVA 9}\par
+\vspace{0.2em}{\color{destaque}\rule{\linewidth}{1.2pt}}\par
+\vspace{0.4em}
+{\fontsize{26}{30}\selectfont\bfseries\color{tinta} Oscilador de Duffing}\par
+\vspace{0.2em}
+{\large\color{tinta} Integração por Runge-Kutta de 4ª ordem e leitura do espaço de fases}\par
+\vspace{0.6em}
+\begin{tabular}{@{}ll@{}}
+\textcolor{cinza}{Aluno} & Vinicius Sampaio Castelli de Deus, NUSP 17864509\\
+\textcolor{cinza}{Professor} & Prof. Dr. Flavius Portella Ribas Martins\\
+\textcolor{cinza}{Data} & 6 de novembro de 2026
+\end{tabular}
+\vspace{0.5em}
+
+\begin{alertab}
+\textbf{Conclusão principal: o conjunto obrigatório A não é caótico.} O enunciado não fixa $\alpha$. Com o valor
+clássico $\alpha=-1$, todas as trajetórias testadas convergem para a mesma órbita de \textbf{período 5} ($5T=\VAR{r.T5}$ s),
+com $\lambda_1=\VAR{r.l1_A}$ 1/s. Ainda assim, $\gamma=0{,}37$ está acima do limiar de Melnikov ($\gamma_c=\VAR{r.g_c}$), e
+existe um conjunto caótico que não atrai: ele causa um transiente irregular e decide com qual atraso, múltiplo de $T$, o ciclo
+se estabelece. Para demonstrar caos em regime permanente, foi necessário acrescentar o caso C.
+\end{alertab}
+
+\begin{table}[H]\centering\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}llccl@{}}
+\toprule
+Caso & Dados & $\lambda_1$ [1/s] & Regime & Efeito de uma pequena mudança inicial\\
+\midrule
+\marca{A} & $k_1=-1$, $A=0{,}37$ & $\VAR{r.l1_A}$ & período 5 & Atrasa o ciclo em \VAR{r.f6}\% dos pares ($\varepsilon=10^{-6}$)\\
+\marca{B} & $k_1=-1$, $A=0$ & $-0{,}150$ & repouso em $\pm1$ & Altera o poço final apenas perto da separatriz\\
+\marca{C} & $k_1=-1$, $A=0{,}50$ & $\VAR{r.l1_C}$ & caos & Toda trajetória diverge da vizinha\\
+\marca{D} & $k_1=+1$, $A=0{,}37$ & $\VAR{r.l1_D}$ & período 1 & Nenhum: o estado final é único\\
+\marca{E} & $k_1=-1$, $A=0{,}20$ & $\VAR{r.lam_E}$ & 2 atratores, período 1 & Altera o atrator apenas perto de fronteira lisa\\
+\bottomrule
+\end{tabular}
+\caption{Os cinco conjuntos executados. Em todos: $m=1$ kg, $k_2=1$ N/m³, $c=0{,}3$ N·s/m e $\omega=1{,}2$ rad/s.
+$k_1$ em N/m e $A$ em N.}
+\end{table}
+\vspace{-0.5em}
+\begin{table}[H]\centering
+\begin{tabularx}{\linewidth}{@{}Xl@{}}
+\toprule
+O que o enunciado pede & Onde está\\
+\midrule
+Programa com RK4 e entradas a--g; saídas $x(t)$, $\dot{x}(t)$ e $\dot{x}(x)$ & Seções 3 e 4; Anexo\\
+Pelo menos 4 conjuntos, incluindo os obrigatórios A e B & Seção 6\\
+Pequeníssimas variações iniciais causam grandes variações (item 3) & Seção 7\\
+Descrição do comportamento a partir do espaço de fases (item 4) & Seção 8\\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-0.6em}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/capa.pdf}
+\caption{Espaço de fases dos cinco casos, nas mesmas escalas. A Seção 8 interpreta cada forma.}
+\end{figure}
+
+\newpage
+%# ================================================================== 1 MODELO
+\section{Modelo físico}
+\begin{figure}[H]\centering
+\begin{tikzpicture}[>={Latex[length=2.4mm,width=1.8mm]}, line cap=round]
+  \fill[pattern=north east lines,pattern color=cinza] (-0.22,-0.22) rectangle (0,2.3);
+  \fill[pattern=north east lines,pattern color=cinza] (0,-0.22) rectangle (6.3,0);
+  \draw[thick,tinta] (0,2.3)--(0,0)--(6.3,0);
+  \draw[tinta,decorate,decoration={coil,aspect=0.45,segment length=2.3mm,amplitude=1.7mm,pre length=3mm,post length=3mm}] (0,1.45)--(3.1,1.45);
+  \node[tinta,font=\small] at (1.55,1.95) {$k_1,\,k_2$};
+  \draw[tinta] (0,0.62)--(1.25,0.62);
+  \draw[tinta,thick] (1.25,0.38)--(1.25,0.86);
+  \draw[tinta] (1.0,0.32)--(2.0,0.32) (1.0,0.92)--(2.0,0.92) (1.0,0.32)--(1.0,0.92);
+  \draw[tinta] (1.72,0.42)--(1.72,0.82) (1.72,0.62)--(3.1,0.62);
+  \node[tinta,font=\small] at (2.4,0.33) {$c$};
+  \filldraw[fill=fundo,draw=tinta,thick] (3.1,0.14) rectangle (4.5,1.9);
+  \node[tinta] at (3.8,1.02) {$m$};
+  \foreach \p in {3.4,4.2} \draw[tinta,fill=white] (\p,0.07) circle (0.07);
+  \draw[->,very thick,casoC] (4.5,1.02)--(5.8,1.02) node[above,pos=0.5,tinta,font=\small,yshift=1pt] {$F(t)$};
+  \node[tinta,font=\footnotesize] at (5.2,0.72) {$A\cos\omega t$};
+  \draw[cinza,dashed] (3.8,1.9)--(3.8,2.5);
+  \draw[->,tinta] (3.8,2.4)--(4.9,2.4) node[right,font=\small] {$x$};
+\end{tikzpicture}
+\hspace{0.7cm}
+\begin{tikzpicture}[>={Latex[length=2.4mm,width=1.8mm]}, line cap=round]
+  \filldraw[fill=fundo,draw=tinta,thick] (0,0.15) rectangle (1.3,2.25);
+  \node[tinta] at (0.65,1.2) {$m$};
+  \draw[->,thick,tinta] (1.3,1.9)--(2.5,1.9) node[right,font=\small] {$F_{\text{mola}}=-k_1x-k_2x^3$};
+  \draw[->,thick,tinta] (1.3,1.2)--(2.5,1.2) node[right,font=\small] {$F_a=-c\dot{x}$};
+  \draw[->,thick,casoC] (1.3,0.5)--(2.5,0.5) node[right,font=\small,tinta] {$F(t)=A\cos\omega t$};
+\end{tikzpicture}
+\caption{À esquerda, o sistema; com $k_1<0$, a ``mola'' é um modelo de elemento restaurador, não uma mola helicoidal comum. À
+direita, o diagrama de corpo livre na direção $x$: as três forças são desenhadas no sentido positivo, e o sinal de cada valor algébrico indica o sentido real. Peso e normal se equilibram na vertical.}
+\end{figure}
+
+A 2ª lei de Newton na direção $x$ fornece
+\begin{equation}
+m\ddot{x}=-k_1x-k_2x^3-c\dot{x}+A\cos\omega t
+\quad\Longrightarrow\quad
+\ddot{x}+\delta\dot{x}+\alpha x+\beta x^3=\gamma\cos\omega t,
+\end{equation}
+com $\delta=c/m$, $\alpha=k_1/m$, $\beta=k_2/m$ e $\gamma=A/m$, forma associada a Duffing (1918). Os resultados dependem apenas desses coeficientes e de $\omega$: multiplicar $m,k_1,k_2,c,A$ pelo mesmo fator não altera o movimento, o que foi conferido na Seção 5.
+
+\textbf{Adimensionalização.} Com $x_r=\sqrt{|\alpha|/\beta}$ e $\omega_r=\sqrt{|\alpha|}$, os grupos independentes são apenas três:
+$\delta/\omega_r$, $\omega/\omega_r$ e $\gamma/(x_r\omega_r^2)$. Nos dados usados, $x_r=1$ m e $\omega_r=1$ rad/s, de modo que esses grupos valem
+numericamente $\delta$, $\omega$ e $\gamma$. Distâncias entre estados, que somam posição e velocidade, são sempre adimensionais neste relatório:
+$|\Delta|=\sqrt{(\Delta x/x_r)^2+(\Delta\dot{x}/x_r\omega_r)^2}$.
+
+\textbf{Escolha do valor de $\alpha$.} O conjunto A fixa $\delta$, $\beta$, $\gamma$ e $\omega$, mas não
+$\alpha$. Esses valores coincidem com a sequência clássica para $\alpha=-1$ (JORDAN; SMITH, 2007, p. 453-462; DUFFING\ldots, 2026), adotada aqui com $m=1$ kg,
+$k_1=-1$ N/m, $k_2=1$ N/m³, $c=0{,}3$ N·s/m e $A=0{,}37$ N. O caso D examina a outra leitura natural, $\alpha=+1$.
+
+\textbf{Significado de $k_1<0$.} O elemento afasta o bloco de $x=0$ quando o deslocamento é pequeno e o restaura quando o deslocamento é grande. Esse modelo de um grau de liberdade é a aproximação usual para a viga flambada entre dois ímãs (MOON; HOLMES, 1979; HOLMES, 1979).
+Por consequência, $x=0$ não é a posição de equilíbrio estável sugerida pelo enunciado: é um equilíbrio instável entre dois estáveis, e $x$ é medido a partir desse ponto central.
+
+\textbf{O impulso do conjunto B.} Sem a força contínua ($A=0$), o movimento resulta de uma ação de duração infinitesimal. Integrando a 2ª lei nessa duração, $J=\int F\,dt=m\,\Delta\dot{x}$, enquanto $x$ permanece inalterado.
+O impulso equivale, portanto, à condição inicial $\dot{x}(0)=J/m$.
+
+%# ================================================================== 2 ANALISE
+\section{Análise prévia à integração}
+Cinco desenvolvimentos analíticos antecipam o que a integração numérica deve apresentar.
+
+\textbf{Energia e potencial.} A força da mola deriva de $V(x)=\tfrac12k_1x^2+\tfrac14k_2x^4$. Com
+$E=\tfrac12m\dot{x}^2+V(x)$ e usando a equação do movimento,
+\begin{equation}\label{eq:energia}
+\frac{dE}{dt}=\dot{x}\,(m\ddot{x}+k_1x+k_2x^3)=-c\dot{x}^2+\dot{x}\,A\cos\omega t.
+\end{equation}
+O amortecedor sempre retira energia, e a força ora fornece, ora retira.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/potencial.pdf}
+\caption{Energia potencial da mola. Com $k_1<0$ surgem dois poços separados por uma barreira de altura $0{,}25$ J.}
+\end{figure}
+
+\textbf{Equilíbrios ($A=0$).} De $\alpha x+\beta x^3=0$ vêm $x=0$ e $x=\pm\sqrt{-\alpha/\beta}=\pm1$. A linearização em
+torno de $x^*$ tem autovalores $s$ que satisfazem $s^2+\delta s+(\alpha+3\beta x^{*2})=0$:
+\begin{align}
+x^*=0:&\quad s=\frac{-\delta\pm\sqrt{\delta^2+4}}{2}=\VAR{r.mu}\ \text{ e }\ \VAR{r.mu_neg}\ \text{1/s}\quad\text{(sela: instável)},\\
+x^*=\pm1:&\quad s=\frac{-\delta\pm i\sqrt{8-\delta^2}}{2}=-0{,}15\pm \VAR{r.wd}\,i\ \text{1/s}\quad\text{(espiral estável)}.
+\end{align}
+Assim, no fundo de cada poço o bloco oscila a $\VAR{r.wd}$ rad/s, e a amplitude decai com constante de tempo
+$1/0{,}15=\VAR{r.tau_poco}$ s.
+
+\textbf{Barreira.} Partindo do repouso em $x=1$, sem amortecimento, cruzar a barreira exigiria
+$\tfrac12\dot{x}(0)^2>\tfrac14$, ou seja, $|\dot{x}(0)|>\VAR{r.v_barreira}$ m/s. Com amortecimento, o valor é maior, e o limiar
+numérico da Seção 6.2 deve respeitar esse resultado.
+
+\textbf{Contração de áreas e limite do caos.} O campo $(\dot{x},\ddot{x})$ tem divergência
+$\partial\dot{x}/\partial x+\partial\ddot{x}/\partial\dot{x}=-\delta$. Toda área no espaço de fases encolhe como
+$e^{-\delta t}$. Por isso, os dois expoentes de Lyapunov não triviais somam exatamente
+\begin{equation}\label{eq:soma}
+\lambda_1+\lambda_2=-\delta=-0{,}3\ \text{1/s};
+\end{equation}
+o terceiro expoente do fluxo, na direção da fase $\omega t$, é nulo.
+Com $A=0$, o movimento vive em um plano. Pelo critério de Bendixson, divergência de sinal constante exclui órbitas fechadas; além disso, $E$ não aumenta e é constante apenas nos equilíbrios. Logo, o teorema de
+Poincaré-Bendixson (STROGATZ, 2015) e o princípio de invariância conduzem a uma única conclusão: o caso B \emph{não pode} ser caótico, e toda trajetória converge para um equilíbrio. Quase todas convergem para $x=\pm1$; a exceção é a separatriz, uma curva de área nula que converge para a sela. A força
+acrescenta uma dimensão, a fase $\omega t$, e somente então o caos se torna possível. Ele não é, contudo, obrigatório, como mostra o caso A.
+
+\textbf{Emaranhado homoclínico (Melnikov).} Sem força nem amortecimento, a sela em $x=0$ conecta-se a si mesma pela órbita homoclínica $x_0(t)=\sqrt2\,\mathrm{sech}\,t$, $\dot{x}_0(t)=-\sqrt2\,\mathrm{sech}\,t\,\tanh t$. Com força e amortecimento pequenos, a distância entre as variedades estável ($W^s$) e instável ($W^u$) da sela é proporcional à função de Melnikov (HOLMES, 1979; GUCKENHEIMER; HOLMES, 1983):
+\begin{equation}
+M(t_0)=\int_{-\infty}^{\infty}\dot{x}_0(t)\left[\gamma\cos\omega(t+t_0)-\delta\dot{x}_0(t)\right]dt=-\frac43\delta\pm\sqrt2\,\pi\gamma\omega\,\mathrm{sech}\!\left(\frac{\pi\omega}{2}\right)\sin\omega t_0.
+\end{equation}
+A função $M$ troca de sinal, e as variedades passam a se cruzar, quando
+\begin{equation}\label{eq:melnikov}
+\gamma>\gamma_c=\frac{4\,\delta\cosh(\pi\omega/2)}{3\sqrt2\,\pi\omega}=\frac{4\cdot0{,}3\cdot\VAR{r.cosh_mel}}{3\sqrt2\,\pi\cdot1{,}2}=\VAR{r.g_c}\ \text{m/s}^2.
+\end{equation}
+Cruzamentos implicam uma dinâmica de ferradura de Smale: um conjunto caótico existe, mas pode não atrair nada. Decorre disso a previsão de efeitos caóticos em $\gamma=0{,}37$, mesmo com regime periódico. A fórmula é perturbativa, e $\delta$ e $\gamma$ aqui não são pequenos; por isso ela é testada na Seção 7.1.
+
+%# ================================================================== 3 METODO
+\section{Método numérico}
+Com $v=\dot{x}$, a equação transforma-se no sistema de 1ª ordem $\dot{x}=v$, $\dot{v}=a(t,x,v)$, em que
+$a=\gamma\cos\omega t-\delta v-\alpha x-\beta x^3$. Cada passo de RK4 (RUNGE-KUTTA\ldots, 2026) avalia esse campo quatro vezes:
+\begin{equation}
+\begin{aligned}
+k_{1x}&=v_n, & k_{1v}&=a(t_n,\,x_n,\,v_n),\\
+k_{2x}&=v_n+\tfrac h2k_{1v}, & k_{2v}&=a(t_n+\tfrac h2,\ x_n+\tfrac h2k_{1x},\ k_{2x}),\\
+k_{3x}&=v_n+\tfrac h2k_{2v}, & k_{3v}&=a(t_n+\tfrac h2,\ x_n+\tfrac h2k_{2x},\ k_{3x}),\\
+k_{4x}&=v_n+hk_{3v}, & k_{4v}&=a(t_n+h,\ x_n+hk_{3x},\ k_{4x}),
+\end{aligned}
+\end{equation}
+\begin{equation}
+x_{n+1}=x_n+\tfrac h6(k_{1x}+2k_{2x}+2k_{3x}+k_{4x}),\qquad
+v_{n+1}=v_n+\tfrac h6(k_{1v}+2k_{2v}+2k_{3v}+k_{4v}).
+\end{equation}
+
+\textbf{Um passo calculado explicitamente.} Caso A, $x_0=1$, $v_0=0$, $t_0=0$ e
+$h=T/200=2\pi/(1{,}2\cdot200)=\VAR{r.passo.h}$ s.
+\begin{table}[H]\centering\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{@{}cll@{}}
+\toprule
+$i$ & $k_{ix}$ [m/s] & $k_{iv}$ [m/s²]\\
+\midrule
+1 & $v_0=\VAR{r.passo.k1x}$ & $0{,}37-0{,}3\cdot0+1-1=\VAR{r.passo.k1v}$\\
+2 & $0+\tfrac h2\cdot0{,}37=\VAR{r.passo.k2x}$ & $a(\tfrac h2,\,1,\ k_{2x})=\VAR{r.passo.k2v}$\\
+3 & $0+\tfrac h2 k_{2v}=\VAR{r.passo.k3x}$ & $a(\tfrac h2,\ 1+\tfrac h2k_{2x},\ k_{3x})=\VAR{r.passo.k3v}$\\
+4 & $0+hk_{3v}=\VAR{r.passo.k4x}$ & $a(h,\ 1+hk_{3x},\ k_{4x})=\VAR{r.passo.k4v}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{-0.3em}
+Obtêm-se $x_1=\VAR{r.passo.xn}$ m e $v_1=\VAR{r.passo.vn}$ m/s. A rotina \texttt{passo\_rk4} do programa retorna os mesmos valores, e a coincidência é verificada a cada geração deste relatório.
+
+\textbf{Passo.} Adotou-se $h=T/200=\VAR{r.h}$ s, pequeno frente ao período da força ($T=\VAR{r.T}$ s) e ao da oscilação
+no poço ($2\pi/\VAR{r.wd}$ s). Para outras entradas, o programa reduz $h$ quando a mola exige e o ajusta para o último
+passo cair exatamente em $t_{\max}$.
+
+\textbf{Seção de Poincaré.} Registrar o estado apenas em $t=nT$, isto é, sempre na fase $\omega t=0$ da força, elimina a oscilação forçada: $p$ pontos distintos
+significam período $p$, e uma nuvem sem repetição indica movimento não periódico. Toda seção deste relatório é tomada nessa fase.
+
+\textbf{Expoentes de Lyapunov.} O expoente $\lambda_1$ mede a taxa média de afastamento entre trajetórias vizinhas. Foi calculado
+pelo método de Benettin \emph{et al.} (1980a, 1980b): dois vetores tangentes evoluem pela equação linearizada
+$\ddot{u}+\delta\dot{u}+(\alpha+3\beta x^2)u=0$ e são reortonormalizados a cada período.
+
+\textbf{Órbitas periódicas e Floquet.} Sendo $P$ o mapa de um período da força, uma órbita de período $p$ satisfaz $P^p(z)=z$. Esse sistema é resolvido por Newton, com a matriz de monodromia $\mathrm{D}P^p$ dada pela mesma equação linearizada. Seus autovalores $\mu$ são os multiplicadores de Floquet: a órbita é estável se $|\mu|<1$, e $\lambda=\ln|\mu|/(pT)$. Como o produto dos dois vale $e^{-\delta pT}$, multiplicadores complexos conjugados têm $|\mu|=e^{-\delta pT/2}$ e, portanto, $\lambda_1=\lambda_2=-\delta/2$ exatamente.
+
+%# ================================================================== 4 PROGRAMA
+\needspace{11cm}
+\section{Programa}
+O programa foi escrito em Python, com integrador próprio; a biblioteca SciPy é utilizada apenas como referência na verificação e em operações auxiliares. A rotina central é a seguinte:
+\begin{Verbatim}[fontsize=\footnotesize,frame=leftline,framesep=8pt,rulecolor=\color{destaque},framerule=1.5pt,xleftmargin=2pt]
+def aceleracao(t, x, v, c):
+    d, a, b, g, w = c
+    return g * math.cos(w * t) - d * v - a * x - b * x * x * x
+
+def passo_rk4(t, x, v, h, c):
+    k1x = v
+    k1v = aceleracao(t, x, v, c)
+    k2x = v + 0.5 * h * k1v
+    k2v = aceleracao(t + 0.5 * h, x + 0.5 * h * k1x, k2x, c)
+    k3x = v + 0.5 * h * k2v
+    k3v = aceleracao(t + 0.5 * h, x + 0.5 * h * k2x, k3x, c)
+    k4x = v + h * k3v
+    k4v = aceleracao(t + h, x + h * k3x, k4x, c)
+    x_novo = x + h / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
+    v_novo = v + h / 6 * (k1v + 2 * k2v + 2 * k3v + k4v)
+    return x_novo, v_novo
+\end{Verbatim}
+Os argumentos \texttt{x} e \texttt{v} podem ser arrays: o mesmo código integra milhares de trajetórias de uma vez, o que torna
+viáveis os mapas da Seção 7. As entradas a--g do enunciado são fornecidas na linha de comando:
+\begin{Verbatim}[fontsize=\footnotesize,frame=leftline,framesep=8pt,rulecolor=\color{destaque},framerule=1.5pt,xleftmargin=2pt]
+python -m codigo --m 1 --k1 -1 --k2 1 --c 0.3 --A 0.37 --omega 1.2 \
+                 --tmax 314.16 --x0 0.084 --v0 0
+\end{Verbatim}
+A saída compreende os gráficos $x(t)$, $\dot{x}(t)$ e $\dot{x}(x)$, um painel com os três e a tabela \texttt{trajetoria.csv}.
+Entradas inválidas ($m\le0$, $c<0$, $t_{\max}\le0$) são recusadas, e uma solução que diverge (possível com $k_2<0$)
+interrompe a execução com mensagem de erro. O comando \texttt{python -m codigo --todos} regenera todos os casos, as figuras e este documento.
+O código completo do modelo está no Anexo.
+
+%# ================================================================== 5 VERIFICACAO
+\section{Verificação}
+Em um sistema sensível, um erro de programação pode ser confundido com um fenômeno físico. Por isso, o integrador foi confrontado com resultados conhecidos a priori. A tabela apresenta os valores medidos, gerados a cada compilação; a suíte
+\texttt{pytest} impõe limites equivalentes.
+\begin{table}[H]\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Ensaio & Medido & Limite\\
+\midrule
+\BLOCK{for l in r.linhas}
+\BLOCK{if loop.first}
+\VAR{l.afirmacao} & $\VAR{l.medido}$ & deve tender a $4$\\
+\BLOCK{else}
+\VAR{l.afirmacao} & $\VAR{l.medido}$ \VAR{l.unidade} & $<\VAR{l.limite}$\\
+\BLOCK{endif}
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\caption{Ensaios analíticos e de consistência. DOP853 é um integrador independente, da biblioteca SciPy.}
+\end{table}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/verificacao.pdf}
+\caption{Convergência no caso C, entre $t=0$ e $t=20$ s. No passo adotado, o erro global é da ordem de $\VAR{r.erro_h}$.}
+\end{figure}
+
+\textbf{Comparação com a literatura.} A mesma rotina que classifica os casos reproduz a sequência para $\alpha=-1$, $\beta=1$, $\delta=0{,}3$ e $\omega=1{,}2$ (JORDAN; SMITH, 2007, p. 453-462; DUFFING\ldots, 2026):
+\begin{table}[H]\centering
+\begin{tabular}{@{}l\BLOCK{for x in r.literatura}c\BLOCK{endfor}@{}}
+\toprule
+$\gamma$\BLOCK{for x in r.literatura} & $\VAR{x.gamma}$\BLOCK{endfor}\\
+\midrule
+Publicado\BLOCK{for x in r.literatura} & \VAR{x.alvo}\BLOCK{endfor}\\
+Medido aqui\BLOCK{for x in r.literatura} & \VAR{x.medido}\BLOCK{endfor}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%# ================================================================== 6 RESULTADOS
+\section{Resultados dos cinco conjuntos}
+Os três gráficos pedidos aparecem juntos, sempre com as mesmas escalas, para permitir comparação direta. No espaço de
+fases, o tom escurece com o tempo; o círculo pequeno marca o início; os símbolos $\times$ e $\circ$ marcam os equilíbrios
+instáveis e estáveis da mola sem força.
+
+\subsection{Caso A (obrigatório): \texorpdfstring{$\gamma=0{,}37$}{gamma = 0,37}}
+Dados: $m=1$ kg, $k_1=-1$ N/m, $k_2=1$ N/m³, $c=0{,}3$ N·s/m, $A=0{,}37$ N, $\omega=1{,}2$ rad/s, $t_{\max}=60T\approx314$ s, $x(0)=0{,}084$ m, $\dot{x}(0)=0$.
+O bloco inicialmente transita de forma irregular entre os poços e, em seguida, estabiliza-se em uma curva fechada que passa por ambos (Figura~\ref{fig:reg}).
+A seção de Poincaré tem exatamente 5 pontos. O Newton sobre $P^5(z)=z$ converge com resíduo de $\VAR{r.res_A}$, e os multiplicadores de Floquet são $\mu_1=\VAR{r.mu1}$ e $\mu_2=\VAR{r.mu2}$, reais e menores que 1: a órbita é estável. Deles resultam $\lambda_1=\VAR{r.l1_A}$ 1/s e $\lambda_2=\VAR{r.l2_A}$ 1/s, os mesmos valores medidos pelo método de Benettin. Em regime, portanto, duas trajetórias próximas se aproximam em vez de se afastar. A órbita é a própria imagem espelhada: refletida em $x\to-x$, $\dot{x}\to-\dot{x}$ com atraso de $T/2$, ela coincide consigo mesma (distância de $\VAR{r.dist_espelho}$).
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/caso_A.pdf}
+\caption{Caso A. Depois de um transiente irregular de cerca de $\VAR{r.t_trans_A}$ s, o movimento se repete a cada $5T=\VAR{r.T5}$ s.}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/regime_A.pdf}
+\caption{\label{fig:reg}Caso A em detalhe. (a) O ciclo em unidades de $T$, com os pontos da seção de Poincaré. (b) e (c) Transiente e regime da mesma trajetória, separados.}
+\end{figure}
+\subsection{Caso B (obrigatório): \texorpdfstring{$A=0$}{A = 0}, movimento após um impulso}
+Dados: como no caso A, mas com amplitude $A=0$, $t_{\max}=8T\approx42$ s, $x(0)=1$ m (bloco em repouso no fundo do poço) e $\dot{x}(0)=J/m$ igual a
+$0{,}6$, $1{,}1$ ou $2{,}2$ m/s. Como previsto na Seção 2, as trajetórias terminam em repouso em $x=\pm1$. Os limiares de impulso são $\dot{x}(0)=\VAR{r.lim[0]}$,
+$\VAR{r.lim[1]}$ e $\VAR{r.lim[2]}$ m/s no intervalo mostrado. O primeiro excede os $\VAR{r.v_barreira}$ m/s da cálculo sem amortecimento, como esperado. Bacias e separatriz são simétricas, e cada bacia ocupa metade da região mapeada ($\VAR{r.frac_dir_B}$\% para $x\to+1$).
+
+\needspace{5cm}
+O balanço de energia explica cada trajetória. Como o topo da barreira está em $E=0$ e, sem força, a energia apenas diminui, um bloco com $E(0)<0$ não pode sair do poço de partida:
+\begin{table}[H]\centering
+\begin{tabular}{@{}ccc@{}}
+\toprule
+$\dot{x}(0)$ [m/s] & $E(0)=\tfrac12\dot{x}(0)^2-\tfrac14$ [J] & Poço final\\
+\midrule
+\BLOCK{for l in r.tabela_B}
+$\VAR{l.v0}$ & $\VAR{l.E0}$ & $x=\VAR{l.fim}$\\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{-0.3em}
+A condição $E(0)>0$ é necessária para cruzar, mas não suficiente, porque o amortecedor dissipa energia ao longo da trajetória. No primeiro limiar, $E(0)=\VAR{r.E_lim}$ J: é exatamente a energia dissipada até o bloco chegar à sela com velocidade nula.
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/caso_B.pdf}
+\caption{Caso B. Três impulsos a partir de $x=1$. Em ordem crescente de impulso, o bloco termina em repouso em $x=\VAR{r.finais_B[0]}$, $\VAR{r.finais_B[1]}$ e $\VAR{r.finais_B[2]}$ m.}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/autonomo.pdf}
+\caption{\label{fig:aut}(a) A separatriz, calculada integrando para trás a partir da sela, divide o plano em duas bacias.
+(b) Com o bloco em repouso em $x=1$, o poço final alterna conforme o impulso. (c) Dois impulsos, um de cada lado do primeiro limiar: permanecem indistinguíveis, mantêm-se próximos de $x=0$ até $t\approx\VAR{r.perm8}$ s e convergem para poços opostos.}
+\end{figure}
+
+\needspace{11cm}
+\subsection{Caso C (acréscimo): \texorpdfstring{$\gamma=0{,}50$}{gamma = 0,50}}
+Dados: como no caso A, mas com amplitude $A=0{,}50$ N e $x(0)=1$ m.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/caso_C.pdf}
+\caption{Caso C. Não há repetição: o bloco alterna entre os poços em instantes irregulares, e a curva preenche uma região do plano.}
+\end{figure}
+Um aumento de 35\% na amplitude da força conduz o sistema do regime periódico ao caos: $\lambda_1=\VAR{r.l1_C}$ 1/s (erro-padrão $\VAR{r.ep_l1_C}$ entre
+\VAR{r.n_C} condições iniciais) e $\lambda_2=\VAR{r.l2_C}$ 1/s. A distância entre vizinhas dobra, em média, a cada
+$\ln2/\lambda_1\approx\VAR{r.t_dobra}$ s. Pela fórmula de Kaplan e Yorke (1979), o conjunto da seção de Poincaré tem dimensão
+$1+\lambda_1/|\lambda_2|\approx\VAR{r.dky}$: superior à de uma curva e muito inferior à de uma área. A Figura~\ref{fig:sec}(c) mostra essa estrutura: ao ampliar, cada faixa se abre em camadas.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/secoes.pdf}
+\caption{\label{fig:sec}Seções de Poincaré na fase $\omega t=0$. (a) e (b), nas mesmas escalas: um ciclo no caso A e um atrator estranho no caso C. (c) Ampliação do retângulo de (b), com um milhão de pontos.}
+\end{figure}
+
+\needspace{11cm}
+\subsection{Caso D (acréscimo): \texorpdfstring{$k_1=+1$}{k1 = +1} N/m, poço único}
+Dados: como no caso A, mas com $k_1=+1$ N/m, $x(0)=1$ m e $t_{\max}=24T\approx126$ s. É a leitura alternativa de $\alpha$.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/caso_D.pdf}
+\caption{Caso D. Após cerca de $\VAR{r.t_trans_D}$ s, o movimento é uma única oscilação no ritmo da força.}
+\end{figure}
+A resposta é regular e tem o mesmo período da força. As \VAR{r.n_d} condições iniciais sorteadas chegam ao mesmo estado
+final (dispersão de $\VAR{r.disp_d}$ m). Os multiplicadores de Floquet são complexos conjugados, com $|\mu|=\VAR{r.mod_muD}$; como previsto na Seção 3, isso resulta em $\lambda_1=\lambda_2=-\delta/2=\VAR{r.l1_D_exato}$ 1/s, o que não é coincidência numérica. O resultado também admite verificação analítica: supondo $x\approx a\cos(\omega t-\theta)$ e desprezando harmônicas superiores, o balanço
+harmônico (KOVACIC; BRENNAN, 2011; JORDAN; SMITH, 2007) fornece
+\begin{equation}
+a^2\left[\left(\alpha+\tfrac34\beta a^2-\omega^2\right)^2+(\delta\omega)^2\right]=\gamma^2,
+\end{equation}
+cuja única raiz real positiva é $a=\VAR{r.amp_bh}$ m. A grandeza comparável é a componente fundamental da solução integrada, obtida por Fourier: $\VAR{r.a1}$ m, diferença de \VAR{r.amp_err}\%. A terceira harmônica, que o método despreza, vale $\VAR{r.a3}$ m, razão pela qual a meia amplitude pico a pico ($\VAR{r.amp}$ m) não é adequada a essa comparação.
+
+\needspace{11cm}
+\subsection{Caso E (acréscimo): \texorpdfstring{$\gamma=0{,}20$}{gamma = 0,20}, dois atratores}
+Dados: como no caso A, mas com amplitude $A=0{,}20$ N, $t_{\max}=24T\approx126$ s e $x(0)=\pm1$ m.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/caso_E.pdf}
+\caption{Caso E. Duas condições iniciais, duas oscilações diferentes, uma em cada poço.}
+\end{figure}
+Este caso contrasta com o caso A. Abaixo do limiar de Melnikov, a força não é suficiente para conduzir o bloco de um poço a outro em regime permanente. Há dois atratores de período 1, um em cada poço, cada qual a imagem espelhada do outro; ambos têm multiplicadores complexos e $\lambda_1=\VAR{r.lam_E}$ 1/s. Neste caso, ao contrário do caso A, o estado final é fisicamente diferente: o bloco oscila em outra posição média.
+\begin{figure}[H]\centering
+\includegraphics[width=0.52\linewidth]{figs/bacia_E.pdf}
+\caption{\label{fig:bae}Caso E: bacias dos dois atratores (pontos). A cor é o atrator final, obtido por integração; a linha é $W^s$, calculada à parte. As duas coincidem (\VAR{r.ws_ok}\% dos pontos de $W^s$ na região estão a até dois pixels da troca de cor), e a fronteira é lisa.}
+\end{figure}
+
+\subsection{Análise conjunta dos casos}
+A Figura~\ref{fig:bif} mostra por que o caso A pode induzir a erro: $\gamma=0{,}37$ está em uma janela periódica, medida de
+$\gamma\approx\VAR{r.janela_a}$ a $\VAR{r.janela_b}$, vizinha de regiões com $\lambda_1>0$. Pelo critério $\lambda_1>0{,}01$ 1/s, cerca de \VAR{r.frac_caos}\% dos valores de $\gamma$ no diagrama, de $0{,}20$ a $0{,}65$, têm alguma condição inicial caótica. Janelas assim são parte conhecida da estrutura deste oscilador (ENGLISCH; LAUTERBORN, 1991).
+
+Varrer $\gamma$ nos dois sentidos, carregando o estado de um valor ao seguinte, é o teste usual de histerese. O período detectado difere em \VAR{r.var_n} dos \VAR{r.var_total} valores (\VAR{r.var_dif}\%), isolados, vários deles junto a bifurcações, onde a convergência é lenta. Não há, portanto, faixa extensa de coexistência de regimes com períodos diferentes entre $0{,}20$ e $0{,}65$. O teste não distingue duas órbitas de mesmo período, como as do caso E.
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/bifurcacao.pdf}
+\caption{\label{fig:bif}Diagrama de bifurcação no poço duplo: em cima, os valores de $x(nT)$ em regime; embaixo, $\lambda_1$, medidos
+a partir de quatro condições iniciais para cada um de 901 valores de $\gamma$.}
+\end{figure}
+
+\subsection{Janela periódica do caso A}
+Continuando a órbita simétrica em $\gamma$ por Newton, os multiplicadores mostram exatamente onde ela é estável: de $\gamma=\VAR{r.g_baixo}$ a $\VAR{r.g_alto}$ (Figura~\ref{fig:jan}). O patamar de $|\mu|$ é o valor $e^{-5\delta T/2}$ dos multiplicadores complexos. Nas duas pontas, o multiplicador sai por $\mu=+1$, com a órbita ainda simétrica (distância ao espelho até $\VAR{r.esp_jan}$): é uma quebra de simetria, e não uma duplicação de período. Isso concorda com o resultado de Swift e Wiesenfeld (1984): órbitas simétricas não duplicam o período, salvo em casos excepcionais. A duplicação surge apenas posteriormente, já na órbita assimétrica, como mostra a tabela.
+\begin{table}[H]\centering
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}l\BLOCK{for x in r.rota}c\BLOCK{endfor}@{}}
+\toprule
+$\gamma$\BLOCK{for x in r.rota} & $\VAR{x.g}$\BLOCK{endfor}\\
+\midrule
+Período\BLOCK{for x in r.rota} & \VAR{x.p}\BLOCK{endfor}\\
+$\mu$\BLOCK{for x in r.rota} & $\VAR{x.mu}$\BLOCK{endfor}\\
+Simetria\BLOCK{for x in r.rota} & \VAR{x.esp}\BLOCK{endfor}\\
+\bottomrule
+\end{tabular}
+\caption{Órbita atratora a partir de $x(0)=1$, $\dot{x}(0)=0$. $\mu$: multiplicador de maior módulo (parte real). S: simétrica. A: assimétrica.}
+\end{table}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/janela.pdf}
+\caption{\label{fig:jan}A janela em detalhe. Em cima, regime permanente. Embaixo, o maior $|\mu|$ da órbita simétrica; a faixa sombreada é onde ela é estável, e o caso A está dentro dessa faixa.}
+\end{figure}
+
+\subsection{Espectros}
+O espectro é um diagnóstico clássico para distinguir periodicidade de caos (BRUNSDEN; HOLMES, 1987). A Figura~\ref{fig:esp} confirma a classificação. No caso A, a componente mais forte não está na frequência da força: é $\omega/5$, com $\VAR{r.esp_1}$ m, seguida de $3\omega/5$ ($\VAR{r.esp_3}$ m); em $\omega$ há apenas $\VAR{r.esp_5}$ m. A simetria da órbita permite uma previsão precisa: como $x(t+5T/2)=-x(t)$, podem existir apenas múltiplos ímpares de $\omega/5$. Os múltiplos pares medem no máximo $\VAR{r.esp_pares}$ m, nível de arredondamento. No caso D, pelo mesmo motivo, há apenas múltiplos ímpares de $\omega$. No caso C, o espectro tem fundo contínuo, com alguns picos.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/espectros.pdf}
+\caption{\label{fig:esp}Amplitude de Fourier de $x(t)$ em regime. Casos A e D: um número inteiro de ciclos, sem janela. Caso C: média sobre 64 trajetórias, com janela de Hann.}
+\end{figure}
+
+%# ================================================================== 7 SENSIBILIDADE
+\section{Item 3: sensibilidade às condições iniciais}
+O enunciado pede que se mostre o efeito de variações pequeníssimas. A apresentação de um único par divergente seria enganosa, pois no caso A a maior parte dos pares não diverge. Por essa razão, além dos pares, esta seção quantifica a frequência do fenômeno e explica seu mecanismo.
+
+\subsection{Mecanismo: cruzamento das variedades}
+Para testar a previsão da Seção 2, calculou-se a sela do mapa $P$ por continuação em $\gamma$ e iteraram-se $W^u$ para a frente e $W^s$ para trás, em busca de cruzamentos. A previsão se confirma: nenhum cruzamento detectado até $\gamma=\VAR{r.g_ult0}$ e \VAR{r.n_prim} em $\gamma=\VAR{r.g_prim}$, contra $\gamma_c=\VAR{r.g_c}$, diferença de cerca de \VAR{r.mel_dif}\% (Figura~\ref{fig:var}). Essa diferença está no limite de resolução do teste, já que uma tangência recém-formada é difícil de detectar com arcos discretizados. A concordância com o limiar é coerente com a relação entre o critério de Melnikov e as fronteiras fractais observada no poço duplo (MOON; LI, 1985; SHARMA \emph{et al.}, 2012). O número de cruzamentos é um limite inferior, pois apenas uma parte finita das variedades foi calculada.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/variedades.pdf}
+\caption{\label{fig:var}Variedades da sela (seção $\omega t=0$), truncadas após duas iterações. (a) Abaixo do limiar, sem cruzamentos; os pontos são os dois atratores do caso E. (b) No caso A, emaranhadas; os pontos são o ciclo. (c) Cruzamentos detectados conforme $\gamma$.}
+\end{figure}
+
+\subsection{Caso A: sensibilidade da fase do ciclo}
+Cabe, inicialmente, uma ressalva conceitual. Os 5 pontos da seção de Poincaré pertencem à \emph{mesma} órbita. Eles são atratores distintos apenas do mapa $P^5$; no fluxo, com a fase da força tomada módulo $2\pi$, existe um único atrator. A sensibilidade de estado final, tal como definida por Grebogi \emph{et al.} (1983), trata de múltiplos atratores. Neste caso, o que se altera não é o movimento, mas o atraso, múltiplo de $T$, com que ele ocorre. O caso E (Seção 6.5) é o contraste, com atratores de fato distintos.
+
+O par $x(0)=1$ e $x(0)=1+10^{-6}$ da Figura~\ref{fig:sen}(a--b) converge quase imediatamente para o ciclo: a distância não excede $\VAR{r.b_d_max}$
+e decresce até $\VAR{r.b_d_fim}$. Já o par $x(0)=\VAR{r.x_sep}$ e $x(0)=\VAR{r.x_sep}+10^{-6}$
+se separa perto de $t=\VAR{r.ta_sep}$ s e não volta a se encontrar: as duas trajetórias fazem o mesmo ciclo, mas defasadas,
+com distância média de $\VAR{r.a_d_fim}$ após $t=200$ s. Em cada instante, os valores de $x$ diferem consideravelmente; ao longo do ciclo, porém, o movimento é o mesmo. O mesmo ocorre perturbando a velocidade: com $x(0)=\VAR{r.x_v}$, o par $\dot{x}(0)=0$ e $\dot{x}(0)=10^{-6}$ se separa perto de $t=\VAR{r.tv_sep}$ s. Esses pares não são representativos: foram os primeiros $x(0)>0$ com
+separação em varreduras de passo $10^{-3}$, nas quais \VAR{r.frac_varredura}\% dos pontos se separaram com perturbação em $x(0)$ e \VAR{r.frac_v}\% com perturbação em $\dot{x}(0)$.
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/sensibilidade.pdf}
+\caption{\label{fig:sen}Pares de trajetórias quase idênticas. (a--b) Caso A; em (b), as curvas contínua e tracejada que divergem são perturbações em $x(0)$ e em $\dot{x}(0)$. (c--d) Caso C: $|\Delta|$ cresce exponencialmente até o tamanho do atrator, em cada par (perturbação em $x(0)$, contínua fina; em $\dot{x}(0)$, tracejada) e na média de 4000.}
+\end{figure}
+
+Antes de atingir o ciclo, a trajetória passa pelo \emph{transiente caótico} (LAI; TÉL, 2011), de duração mediana
+$\VAR{r.tau_mediana}\,T\approx\VAR{r.tau_mediana_s}$ s; a cauda da Figura~\ref{fig:inc}(b) é exponencial, com taxa de escape $\kappa\approx\VAR{r.kappa}$ 1/s. Depois, as condições iniciais se dividem conforme o ponto do ciclo em que o sistema se encontra em um instante fixado (Figura~\ref{fig:bac}): cada ponto recebe de \VAR{r.fase_min}\% a \VAR{r.fase_max}\% das \VAR{r.n_pares} condições sorteadas.
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/bacias.pdf}
+\caption{\label{fig:bac}Caso A: em qual dos 5 pontos do ciclo (numerados como na Figura~\ref{fig:sec}a) cada condição inicial está em $t=160T$. Ao ampliar, as faixas continuam entrelaçadas. O aspecto granulado vem, em boa parte, de faixas mais finas que um pixel. Essas são bacias de $P^5$, não de atratores distintos.}
+\end{figure}
+
+A questão quantitativa é a seguinte: dado um erro $\varepsilon$ na condição inicial, qual é a probabilidade $f$ de atingir um ponto diferente do ciclo? Em
+\VAR{r.n_pares} pares aleatórios ($|x(0)|\le2$ m e $|\dot{x}(0)|\le2$ m/s), em direção sorteada:
+\begin{table}[H]\centering
+\begin{tabular}{@{}l\BLOCK{for x in r.tabela_inc}c\BLOCK{endfor}@{}}
+\toprule
+$\log_{10}\varepsilon$\BLOCK{for e, f in r.tabela_inc} & $\VAR{e}$\BLOCK{endfor}\\
+\midrule
+$f$ [\%]\BLOCK{for e, f in r.tabela_inc} & \VAR{f}\BLOCK{endfor}\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{figs/incerteza.pdf}
+\caption{\label{fig:inc}(a) Fração de pares com estado final diferente, nos casos A e E. (b) Caso A: fração de condições iniciais ainda em transiente.}
+\end{figure}
+O ajuste $f\propto\varepsilon^{\varphi}$ fornece $\varphi=\VAR{r.phi3}$ (IC 95\%: $\VAR{r.phi_ic0}$ a $\VAR{r.phi_ic1}$, considerando apenas a contagem), e o valor permanece entre $\VAR{r.phi_fx0}$ e $\VAR{r.phi_fx1}$ em três faixas de ajuste distintas. Para uma fronteira suave, $\varphi$ seria 1: dividir o erro inicial por
+10 dividiria $f$ por 10. Neste caso, dividir $\varepsilon$ por $10^{8}$ divide $f$ por apenas cerca de $\VAR{r.fator_f}$. A dimensão correspondente da fronteira é
+$2-\varphi\approx\VAR{r.dim}$, o que indica fronteira fractal (MCDONALD \emph{et al.}, 1985; NUSSE; YORKE, 1992). O valor de $f$ se refere à região sorteada, $[-2,2]\times[-2,2]$.
+
+\textbf{Dois testes independentes.} Primeiro, um controle: em $\gamma=0{,}15$ e $0{,}20$, abaixo do limiar de Melnikov, com \VAR{r.n_ctl} pares e fronteira entre atratores de fato distintos, obtém-se $\varphi\approx\VAR{r.phi15}$ e $\VAR{r.phi20}$. A contagem decresce rapidamente com $\varepsilon$ (em $\gamma=0{,}20$: \VAR{r.cont20_2} pares em $\varepsilon=10^{-2}$ e \VAR{r.cont20_3} em $10^{-3}$, o que corresponde a um erro de cerca de $\VAR{r.ep_phi20}$ no expoente), de modo que o resultado indica fronteira lisa, $\varphi\approx1$, mas não mede $\varphi$ com precisão; a diferença para $\VAR{r.phi}$ é inequívoca. Segundo, uma relação entre grandezas medidas separadamente: para um conjunto caótico não atrator, espera-se $\varphi\approx\kappa/\lambda$ (KANTZ; GRASSBERGER, 1985), em que $\lambda$ é o expoente durante o transiente. Medindo-se $\lambda$ apenas nas \VAR{r.n_trans} trajetórias ainda fora do ciclo após $28T$, obtém-se $\lambda=\VAR{r.lam_trans}\pm\VAR{r.ep_trans}$ 1/s, positivo, ao contrário dos $\VAR{r.l1_A}$ 1/s do regime. Resulta $\kappa/\lambda=\VAR{r.kl}$, a \VAR{r.kl_dif}\% de $\varphi$.
+
+\subsection{Caso B: sensibilidade restrita à separatriz}
+Fora da separatriz não há sensibilidade: duas trajetórias próximas convergem para o mesmo poço e para o mesmo estado de repouso. Junto a ela, pequenas diferenças determinam o resultado. Na Figura~\ref{fig:aut}(c), impulsos $\VAR{r.v_c}\pm10^{-8}$ m/s terminam em $x=+1$ e $x=-1$.
+O efeito pode ser quantificado: quanto mais próximo do limiar, mais tempo o bloco permanece junto à sela, e o afastamento cresce como $e^{\mu t}$, com
+$\mu=\VAR{r.mu}$ 1/s. O tempo de permanência deve aumentar $1/\mu=\VAR{r.perm_teo}$ s para cada fator $e$ de aproximação; o medido foi $\VAR{r.perm_inc}$ s.
+A diferença para um caso caótico é que aqui o crescimento é único e localizado, e não se repete.
+
+\textbf{Interpretação para a engenharia.} As medidas de integridade de Soliman e Thompson (1989), usadas também no poço duplo por Belardinelli, Lenci e Rega (2018), quantificam a perturbação que o sistema tolera sem mudar de estado. Nos casos com dois atratores, obtém-se:
+\begin{table}[H]\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Atrator & Área da bacia [\%] & Distância à fronteira & Menor $|\Delta\dot{x}|$ que altera o atrator [m/s]\\
+\midrule
+B, repouso em $x=+1$ & \VAR{r.ib_area} & \VAR{r.ib_local} & \VAR{r.ib_desce} (para $\dot{x}<0$); \VAR{r.ib_sobe} (para $\dot{x}>0$)\\
+E, poço $x>0$ & \VAR{r.be[0].a} & \VAR{r.be[0].l} & \VAR{r.be[0].v}\\
+E, poço $x<0$ & \VAR{r.be[1].a} & \VAR{r.be[1].l} & \VAR{r.be[1].v}\\
+\bottomrule
+\end{tabular}
+\caption{Medidas de integridade. Área em relação à região mapeada; em E, na fase $\omega t=0$, a partir do ponto do atrator nessa fase. A assimetria de E vem da fase escolhida: meio período depois, os papéis se invertem.}
+\end{table}
+A força reduz consideravelmente o impulso tolerado. No caso A, a tabela não se aplica, porque não há troca de atrator; o análogo é o entrelaçamento das bacias de $P^5$, produzido pelo mesmo emaranhamento de variedades ao qual Soliman e Thompson (1989) associam a erosão das bacias.
+
+\subsection{Caso C: caos}
+Com $\gamma=0{,}50$, a sensibilidade não depende de escolher o par. Na Figura~\ref{fig:sen}(c--d), o par $x(0)=1$ e $x(0)=1+10^{-10}$ se separa perto de $t=\VAR{r.tc_sep}$ s,
+e a distância média após $t=200$ s é $\VAR{r.c_d_fim}$, o tamanho do próprio atrator. Perturbando $\dot{x}(0)$ em $10^{-10}$, a separação ocorre perto de $t=\VAR{r.tcv_sep}$ s.
+
+Há duas medidas independentes de $\lambda_1$. Pela equação linearizada, $\VAR{r.l1_C}$ 1/s (erro-padrão $\VAR{r.ep_l1_C}$). Pela inclinação de $\langle\ln|\Delta(t)|\rangle$ em 4000 pares de trajetórias não linearizadas, $\VAR{r.lam_ens}$ 1/s (IC 95\%: $\VAR{r.ic_ens0}$ a $\VAR{r.ic_ens1}$). Elas diferem em \VAR{r.dif_lam}\%, mais do que a incerteza estatística de cada uma. A diferença não é efeito do passo, como mostra a tabela; a inclinação varia de $\VAR{r.jan_ens0}$ a $\VAR{r.jan_ens1}$ 1/s conforme a janela de ajuste, o que é da mesma ordem, mas a causa não foi identificada. Por isso, adota-se $\lambda_1\approx0{,}10$ a $0{,}11$ 1/s como estimativa.
+\begin{table}[H]\centering
+\begin{tabular}{@{}l\BLOCK{for x in r.lp}c\BLOCK{endfor}@{}}
+\toprule
+Passos por período\BLOCK{for x in r.lp} & \VAR{x.spp}\BLOCK{endfor}\\
+\midrule
+$\lambda_1$ [1/s], 16 condições iniciais\BLOCK{for x in r.lp} & $\VAR{x.m}\pm\VAR{x.ep}$\BLOCK{endfor}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Efeito dos limites numéricos}
+Como o caos amplifica qualquer erro, as curvas do caso C deixam, após certo tempo, de representar a solução exata daquela condição inicial. O arredondamento relativo de $10^{-16}$ cresce até a escala do atrator em cerca de
+$\ln(10^{16})/\lambda_1\approx\VAR{r.t_pred}$ s, e o erro de truncamento torna-se relevante antes: integrando o caso C com $h$ e $h/2$, as duas soluções distanciam-se em mais de $0{,}1$ em
+$t\approx\VAR{r.t_h}$ s. A partir desse instante, $x(t)$ pode ainda acompanhar alguma trajetória verdadeira próxima, propriedade chamada de sombreamento. Hammel, Yorke e Grebogi (1987) mostram resultados rigorosos nesse sentido para sistemas não hiperbólicos e por tempos longos, mas isso não foi provado para este oscilador. As médias sobre o atrator variam pouco: na seção de Poincaré, com $h$ e $h/2$,
+$\langle x^2\rangle=\VAR{r.x2_h}$ e $\VAR{r.x2_h2}$ m² (diferença de \VAR{r.dif_x2}\%), e $\langle\dot{x}^2\rangle=\VAR{r.v2_h}$ e $\VAR{r.v2_h2}$ m²/s². A forma do atrator e as estatísticas são confiáveis; o instante de cada salto entre poços após $t\approx\VAR{r.t_h}$ s, não.
+
+%# ================================================================== 8 ESPACO DE FASES
+\section{Item 4: análise do espaço de fases}
+No espaço de fases, cada ponto é um estado completo do bloco, posição e velocidade. Como o amortecedor contrai áreas à taxa $\delta$, em todos os casos a nuvem de estados possíveis acaba reduzida a um conjunto de área nula, o \emph{atrator}. O que distingue os regimes é a forma desse conjunto.
+
+\textbf{Caso B: dois pontos.} O impulso conduz o bloco a uma trajetória espiral convergente, ao longo da qual a energia apenas diminui. As duas espirais são separadas pela curva que converge para a sela em $x=0$. Longe da sela, essa curva faz as duas bacias se enrolarem uma na outra, em faixas alternadas: por essa razão, o poço final alterna conforme o impulso.
+
+\textbf{Caso D: uma curva fechada simples.} Com um único poço, a força mantém uma oscilação em torno de $x=0$. A energia fornecida em cada ciclo equilibra a dissipada; a curva fechada e a seção de um único ponto mostram que o bloco acompanha o ritmo da força.
+
+\textbf{Caso E: duas curvas fechadas separadas.} Com dois poços e força pequena, cada curva situa-se em um lado da barreira. O bloco oscila sem cruzá-la, e o estado inicial determina definitivamente em qual lado ele permanece. A fronteira entre as bacias é uma curva suave.
+
+\textbf{Caso A: uma curva fechada longa.} Neste caso, a força é suficiente para que o bloco cruze a barreira, mas não de forma regular a cada período. Antes de se estabelecer, o bloco percorre o espaço de fases sem padrão definido, sob influência do conjunto caótico que não atrai, e é nessa fase que pequenas diferenças se amplificam ($\lambda\approx\VAR{r.lam_trans}$ 1/s). Depois, ele repete uma única curva longa com visitas aos dois poços, que se fecha somente após cinco períodos da força. Isto é, o sistema responde em um ritmo cinco vezes mais lento que o da excitação (uma subarmônica de ordem 5), embora nada na força tenha esse ritmo, e a componente mais forte do espectro é justamente $\omega/5$.
+
+\textbf{Caso C: um conjunto com estrutura fina.} A curva nunca fecha. A seção de Poincaré mostra uma figura dobrada em camadas: a dinâmica amplia as distâncias ($\lambda_1>0$) e, como o movimento é limitado pelas paredes do potencial, dobra a região sobre si mesma, enquanto o amortecedor a comprime na direção transversal ($\lambda_2<0$). A repetição desse estiramento e dessa dobra torna o sistema, simultaneamente, limitado e imprevisível. Tomando todos os instantes, o bloco passa \VAR{r.frac_todos_C}\% do tempo em $x>0$, como exige a simetria $(x,\dot{x},t)\to(-x,-\dot{x},t+T/2)$: nenhum poço é preferido. Na seção $t=nT$ a fração é de apenas \VAR{r.frac_dir_C}\%, sem contradição, porque essa amostra vê sempre a mesma fase da força, e a simetria troca essa fase por outra.
+
+\textbf{Conclusão.} O sistema é determinístico nos cinco casos, sem nenhuma entrada aleatória. O que varia é a influência do estado inicial: em D, nenhuma, depois do transiente; em B e E, em qual atrator o bloco permanece, com fronteira lisa, de modo que o estado inicial é determinante apenas perto dela; em A, na duração do transiente e no atraso do mesmo ciclo, com fronteira fractal; em C, em todo o movimento detalhado, depois de algumas dezenas de segundos.
+
+%# ================================================================== 9 LIMITES
+\section{Alcance e limitações}
+\begin{itemize}
+\item \textbf{O período 5 do caso A depende de $\alpha=-1$.} O enunciado não fixa esse valor. Com outro $\alpha$, o conjunto A deve ser reexecutado, e o programa aceita qualquer valor.
+\item \textbf{Ausência de outros atratores não está provada.} No caso A, foram sorteadas \VAR{r.n_pares} condições iniciais em $[-2,2]\times[-2,2]$, e todas chegaram ao ciclo em 200 períodos. Fora dessa região, ou em bacias minúsculas, poderia existir outro atrator.
+\item \textbf{$\lambda_1>0$ é evidência numérica de caos, não prova.} Vale para um tempo finito, com passo finito. O que sustenta a conclusão é a concordância entre medidas independentes.
+\item \textbf{Melnikov foi testado, não demonstrado.} A fórmula é perturbativa, e os cruzamentos foram detectados em variedades truncadas. A relação $\varphi\approx\kappa/\lambda$ vale, a rigor, em condições idealizadas, e a concordância encontrada é numérica.
+\item \textbf{Não houve validação experimental.} Oscilador semelhante, a viga flambada, foi estudado experimentalmente por Moon (1980), que comparou um critério experimental com o de Holmes e Melnikov, e por Dowell e Pezeshki (1986). Este trabalho é exclusivamente numérico, e os valores aqui usados não foram comparados com aqueles ensaios.
+\item \textbf{O modelo é idealizado.} Amortecimento viscoso puro, elemento cúbico para qualquer deslocamento e força perfeitamente senoidal.
+\end{itemize}
+
+\section*{REFERÊNCIAS}
+\addcontentsline{toc}{section}{Referências}
+\begin{referencias}
+\entradaref{BELARDINELLI, P.; LENCI, S.; REGA, G. Seamless variation of isometric and anisometric dynamical integrity measures in basins's erosion. \textbf{Communications in Nonlinear Science and Numerical Simulation}, [\emph{S. l.}], v. 56, p. 499-507, 2018. DOI: \url{https://doi.org/10.1016/j.cnsns.2017.08.030}.}
+\entradaref{BENETTIN, G.; GALGANI, L.; GIORGILLI, A.; STRELCYN, J.-M. Lyapunov characteristic exponents for smooth dynamical systems and for Hamiltonian systems; a method for computing all of them. Part 1: Theory. \textbf{Meccanica}, [\emph{S. l.}], v. 15, n. 1, p. 9-20, 1980a. DOI: \url{https://doi.org/10.1007/BF02128236}.}
+\entradaref{BENETTIN, G.; GALGANI, L.; GIORGILLI, A.; STRELCYN, J.-M. Lyapunov characteristic exponents for smooth dynamical systems and for Hamiltonian systems; a method for computing all of them. Part 2: Numerical application. \textbf{Meccanica}, [\emph{S. l.}], v. 15, n. 1, p. 21-30, 1980b. DOI: \url{https://doi.org/10.1007/BF02128237}.}
+\entradaref{BRUNSDEN, V.; HOLMES, P. Power spectra of strange attractors near homoclinic orbits. \textbf{Physical Review Letters}, [\emph{S. l.}], v. 58, n. 17, p. 1699-1702, 1987. DOI: \url{https://doi.org/10.1103/PhysRevLett.58.1699}.}
+\entradaref{DOWELL, E. H.; PEZESHKI, C. On the understanding of chaos in Duffing's equation including a comparison with experiment. \textbf{Journal of Applied Mechanics}, [\emph{S. l.}], v. 53, n. 1, p. 5-9, 1986. DOI: \url{https://doi.org/10.1115/1.3171739}.}
+\entradaref{DUFFING, G. \textbf{Erzwungene Schwingungen bei veränderlicher Eigenfrequenz und ihre technische Bedeutung}. Braunschweig: Vieweg, 1918.}
+\entradaref{DUFFING equation. \emph{In}: WIKIPEDIA: the free encyclopedia. [\emph{S. l.}: \emph{s. n.}], 2026. Disponível em: \url{https://en.wikipedia.org/wiki/Duffing_equation}. Acesso em: 5 nov. 2026.}
+\entradaref{ENGLISCH, V.; LAUTERBORN, W. Regular window structure of a double-well Duffing oscillator. \textbf{Physical Review A}, [\emph{S. l.}], v. 44, n. 2, p. 916-924, 1991. DOI: \url{https://doi.org/10.1103/PhysRevA.44.916}.}
+\entradaref{GREBOGI, C.; MCDONALD, S. W.; OTT, E.; YORKE, J. A. Final state sensitivity: an obstruction to predictability. \textbf{Physics Letters A}, [\emph{S. l.}], v. 99, n. 9, p. 415-418, 1983. DOI: \url{https://doi.org/10.1016/0375-9601(83)90945-3}.}
+\entradaref{GUCKENHEIMER, J.; HOLMES, P. \textbf{Nonlinear oscillations, dynamical systems, and bifurcations of vector fields}. New York: Springer, 1983.}
+\entradaref{HAMMEL, S. M.; YORKE, J. A.; GREBOGI, C. Do numerical orbits of chaotic dynamical processes represent true orbits? \textbf{Journal of Complexity}, [\emph{S. l.}], v. 3, n. 2, p. 136-145, 1987. DOI: \url{https://doi.org/10.1016/0885-064X(87)90024-0}.}
+\entradaref{HOLMES, P. A nonlinear oscillator with a strange attractor. \textbf{Philosophical Transactions of the Royal Society of London. Series A, Mathematical and Physical Sciences}, London, v. 292, n. 1394, p. 419-448, 1979. DOI: \url{https://doi.org/10.1098/rsta.1979.0068}.}
+\entradaref{JORDAN, D. W.; SMITH, P. \textbf{Nonlinear ordinary differential equations}: an introduction for scientists and engineers. 4. ed. Oxford: Oxford University Press, 2007.}
+\entradaref{KANTZ, H.; GRASSBERGER, P. Repellers, semi-attractors, and long-lived chaotic transients. \textbf{Physica D: Nonlinear Phenomena}, [\emph{S. l.}], v. 17, n. 1, p. 75-86, 1985. DOI: \url{https://doi.org/10.1016/0167-2789(85)90135-6}.}
+\entradaref{KAPLAN, J. L.; YORKE, J. A. Chaotic behavior of multidimensional difference equations. \emph{In}: PEITGEN, H.-O.; WALTHER, H.-O. (ed.). \textbf{Functional differential equations and approximation of fixed points}. Berlin: Springer, 1979. p. 204-227. (Lecture Notes in Mathematics, v. 730). DOI: \url{https://doi.org/10.1007/BFb0064319}.}
+\entradaref{KOVACIC, I.; BRENNAN, M. J. (ed.). \textbf{The Duffing equation}: nonlinear oscillators and their behaviour. Chichester: Wiley, 2011.}
+\entradaref{LAI, Y.-C.; TÉL, T. \textbf{Transient chaos}: complex dynamics on finite time scales. New York: Springer, 2011.}
+\entradaref{MCDONALD, S. W.; GREBOGI, C.; OTT, E.; YORKE, J. A. Fractal basin boundaries. \textbf{Physica D: Nonlinear Phenomena}, [\emph{S. l.}], v. 17, n. 2, p. 125-153, 1985. DOI: \url{https://doi.org/10.1016/0167-2789(85)90001-6}.}
+\entradaref{MOON, F. C. Experiments on chaotic motions of a forced nonlinear oscillator: strange attractors. \textbf{Journal of Applied Mechanics}, [\emph{S. l.}], v. 47, n. 3, p. 638-644, 1980. DOI: \url{https://doi.org/10.1115/1.3153746}.}
+\entradaref{MOON, F. C.; HOLMES, P. J. A magnetoelastic strange attractor. \textbf{Journal of Sound and Vibration}, [\emph{S. l.}], v. 65, n. 2, p. 275-296, 1979. DOI: \url{https://doi.org/10.1016/0022-460X(79)90520-0}.}
+\entradaref{MOON, F. C.; LI, G.-X. Fractal basin boundaries and homoclinic orbits for periodic motion in a two-well potential. \textbf{Physical Review Letters}, [\emph{S. l.}], v. 55, n. 14, p. 1439-1442, 1985. DOI: \url{https://doi.org/10.1103/PhysRevLett.55.1439}.}
+\entradaref{NUSSE, H. E.; YORKE, J. A. The equality of fractal dimension and uncertainty dimension for certain dynamical systems. \textbf{Communications in Mathematical Physics}, [\emph{S. l.}], v. 150, n. 1, p. 1-21, 1992. DOI: \url{https://doi.org/10.1007/BF02096562}.}
+\entradaref{RUNGE--KUTTA methods. \emph{In}: WIKIPEDIA: the free encyclopedia. [\emph{S. l.}: \emph{s. n.}], 2026. Disponível em: \url{https://en.wikipedia.org/wiki/Runge\%E2\%80\%93Kutta_methods}. Acesso em: 6 nov. 2026.}
+\entradaref{SHARMA, A.; PATIDAR, V.; PUROHIT, G.; SUD, K. K. Effects on the bifurcation and chaos in forced Duffing oscillator due to nonlinear damping. \textbf{Communications in Nonlinear Science and Numerical Simulation}, [\emph{S. l.}], v. 17, n. 6, p. 2254-2269, 2012. DOI: \url{https://doi.org/10.1016/j.cnsns.2011.10.032}.}
+\entradaref{SOLIMAN, M. S.; THOMPSON, J. M. T. Integrity measures quantifying the erosion of smooth and fractal basins of attraction. \textbf{Journal of Sound and Vibration}, [\emph{S. l.}], v. 135, n. 3, p. 453-475, 1989. DOI: \url{https://doi.org/10.1016/0022-460X(89)90699-8}.}
+\entradaref{STROGATZ, S. H. \textbf{Nonlinear dynamics and chaos}: with applications to physics, biology, chemistry, and engineering. 2. ed. Boulder: Westview Press, 2015.}
+\entradaref{SWIFT, J. W.; WIESENFELD, K. Suppression of period doubling in symmetric systems. \textbf{Physical Review Letters}, [\emph{S. l.}], v. 52, n. 9, p. 705-708, 1984. DOI: \url{https://doi.org/10.1103/PhysRevLett.52.705}.}
+\end{referencias}
+
+%# ================================================================== ANEXO
+\newpage
+\appendix
+\section*{Anexo: código do modelo, arquivo codigo/modelo.py}
+\addcontentsline{toc}{section}{Anexo}
+\VerbatimInput[fontsize=\fontsize{7.3}{8.6}\selectfont,frame=leftline,framesep=6pt,rulecolor=\color{destaque},framerule=1.2pt]{modelo_listagem.py}
+\end{document}
