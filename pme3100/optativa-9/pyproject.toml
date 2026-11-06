@@ -1,0 +1,16 @@
+[project]
+name = "duffing"
+version = "1.0.0"
+description = "PME3100 · Oscilador de Duffing: integração RK4, espaço de fases, caos e relatório em PDF"
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "matplotlib", "jinja2"]
+
+[project.optional-dependencies]
+teste = ["pytest"]
+
+[tool.setuptools]
+packages = ["codigo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
