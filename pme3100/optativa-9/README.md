@@ -6,6 +6,9 @@ Integra por Runge-Kutta de 4ª ordem o oscilador
 
 e gera os gráficos x(t), ẋ(t) e ẋ(x). O entregável é `resultado/relatorio_duffing.pdf`.
 
+Versão interativa, com a mesma integração rodando no navegador:
+<https://castlelli.github.io/algorithms/pme3100/optativa-9/>
+
 ## Como rodar
 
 ```bash
@@ -30,6 +33,9 @@ $PY -m codigo --todos
 
 # Só refaz figuras e PDF, usando as análises em cache/
 $PY -m codigo --relatorio
+
+# Exporta os mapas e números do cache para o site (docs/pme3100/optativa-9/data)
+$PY -m codigo --site
 ```
 
 Na primeira compilação, o tectonic baixa os pacotes LaTeX. Sem `--saida`, cada execução grava em
@@ -69,4 +75,7 @@ O enunciado não fixa α = k1/m no conjunto A. Foi adotado α = −1, valor clá
 - `codigo/recursos/`: brasões da capa. A Times New Roman vem do pacote `mscorefonts`, fora do repositório.
 - `codigo/relatorio.py`, `codigo/templates/`: PDF. A geração para se um resultado deixar de
   sustentar uma afirmação do texto (`conferir_afirmacoes`).
+- `codigo/site.py`: exporta bacias, diagrama de bifurcação, atrator e números do relatório para o site.
 - `tests/`: cada teste é uma afirmação física ou numérica.
+- `../../docs/pme3100/optativa-9/`: o site (HTML, CSS e JavaScript puros, sem etapa de build). `js/model.js`
+  repete o RK4 de `modelo.py`. Para ver localmente: `python -m http.server` dentro de `docs/`.

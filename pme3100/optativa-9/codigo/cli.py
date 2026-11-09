@@ -35,6 +35,7 @@ def montar_argumentos() -> argparse.ArgumentParser:
     ap.add_argument("--caso", choices=sorted(CASOS), help="conjunto de dados pronto")
     ap.add_argument("--todos", action="store_true", help="roda os 4 casos, as análises e gera o relatório")
     ap.add_argument("--relatorio", action="store_true", help="só refaz figuras e PDF (usa o cache)")
+    ap.add_argument("--site", action="store_true", help="exporta os dados do site interativo (usa o cache)")
     for nome, ajuda in (("m", "massa do bloco [kg]"), ("k1", "constante linear da mola [N/m]"),
                         ("k2", "constante cúbica da mola [N/m³]"), ("c", "amortecimento viscoso [N·s/m]"),
                         ("A", "amplitude da força [N]"), ("omega", "frequência da força [rad/s]"),
@@ -49,6 +50,11 @@ def main(argv: list[str] | None = None) -> int:
     ap = montar_argumentos()
     a = ap.parse_args(argv)
     try:
+        if a.site:
+            from .site import export_site
+
+            print(f"dados do site gravados em {export_site() / 'data'}")
+            return 0
         if a.todos or a.relatorio:
             from .relatorio import gerar_relatorio
 
