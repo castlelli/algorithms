@@ -237,9 +237,9 @@ export function createButterfly(report, lab) {
       }
       crosshair(ctx, dPlot);
     });
-    ctx.font = `11px ${colors.mono}`;
+    ctx.font = `14px ${colors.mono}`;
     ctx.fillStyle = colors.ink3;
-    ctx.font = `12px ${colors.sans}`;
+    ctx.font = `15px ${colors.sans}`;
     ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
     ctx.fillText("0,1 m: blocos separados", dPlot.inner.left + 8, dPlot.py(Math.log10(SEPARATED)) - 5);
@@ -259,11 +259,11 @@ export function createButterfly(report, lab) {
 
   function legend(ctx, plot, items) {
     const colors = theme();
-    ctx.font = `12px ${colors.sans}`;
+    ctx.font = `15px ${colors.sans}`;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    let x = plot.inner.left + 110;
-    const y = plot.inner.top + 11;
+    let x = plot.inner.left + 6 + ctx.measureText(plot.yLabel).width + 24;
+    const y = plot.inner.top + 13;
     for (const [stroke, label, dashed] of items) {
       ctx.strokeStyle = stroke;
       ctx.lineWidth = 2;

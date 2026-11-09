@@ -113,7 +113,7 @@ export async function createBasins(report, lab) {
         ctx.arc(px, py, 6, 0, 2 * Math.PI);
         ctx.fill();
         if (info.points.length > 2) {
-          ctx.font = `600 12px ${colors.sans}`;
+          ctx.font = `600 15px ${colors.sans}`;
           ctx.fillStyle = colors.ink;
           ctx.textAlign = "left";
           ctx.textBaseline = "middle";

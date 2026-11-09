@@ -119,6 +119,9 @@ export class Plot {
   constructor(canvas, options = {}) {
     this.canvas = canvas;
     this.margin = { left: 46, right: 14, top: 12, bottom: 34, ...options.margin };
+    // Room for the large tick labels and axis titles.
+    this.margin.left += 12;
+    if (this.margin.bottom > 20) this.margin.bottom += 14;
     this.xLabel = options.xLabel ?? "";
     this.yLabel = options.yLabel ?? "";
     this.xTickFormat = options.xTickFormat ?? ((t) => trimmed(t));
@@ -175,8 +178,8 @@ export class Plot {
     const { left, top, width: w, height: h } = this.inner;
     ctx.clearRect(0, 0, width, height);
     ctx.lineWidth = 1;
-    ctx.font = `11px ${colors.sans}`;
-    ctx.fillStyle = colors.ink3;
+    ctx.font = `14px ${colors.sans}`;
+    ctx.fillStyle = colors.ink2;
     ctx.strokeStyle = colors.grid;
 
     ctx.textAlign = "center";
@@ -187,7 +190,7 @@ export class Plot {
       ctx.moveTo(x, top);
       ctx.lineTo(x, top + h);
       ctx.stroke();
-      ctx.fillText(this.xTickFormat(tick), x, top + h + 6);
+      ctx.fillText(this.xTickFormat(tick), x, top + h + 7);
     }
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
@@ -197,10 +200,10 @@ export class Plot {
       ctx.moveTo(left, y);
       ctx.lineTo(left + w, y);
       ctx.stroke();
-      ctx.fillText(this.yTickFormat(tick), left - 7, y);
+      ctx.fillText(this.yTickFormat(tick), left - 8, y);
     }
 
-    ctx.font = `12px ${colors.sans}`;
+    ctx.font = `15px ${colors.sans}`;
     ctx.fillStyle = colors.ink2;
     if (this.xLabel) {
       ctx.textAlign = "right";

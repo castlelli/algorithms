@@ -12,7 +12,7 @@ const CONTROLS = [
   { group: "Sistema", key: "m", symbol: "m", name: "massa", unit: "kg", min: 0.2, max: 5, step: 0.01 },
   { group: "Sistema", key: "k1", symbol: "k<sub>1</sub>", name: "mola linear", unit: "N/m", min: -2, max: 2, step: 0.01 },
   { group: "Sistema", key: "k2", symbol: "k<sub>2</sub>", name: "mola cúbica", unit: "N/m³", min: 0, max: 3, step: 0.01 },
-  { group: "Sistema", key: "c", symbol: "c", name: "amortecimento", unit: "N·s/m", min: 0, max: 1, step: 0.005 },
+  { group: "Sistema", key: "c", symbol: "c", name: "amortecedor", unit: "N·s/m", min: 0, max: 1, step: 0.005 },
   { group: "Força", key: "A", symbol: "A", name: "amplitude", unit: "N", min: 0, max: 1.5, step: 0.001 },
   { group: "Força", key: "omega", symbol: "ω", name: "frequência", unit: "rad/s", min: 0.2, max: 3, step: 0.01 },
   { group: "Partida", key: "x0", symbol: "x(0)", name: "posição", unit: "m", min: -2, max: 2, step: 0.001 },
@@ -225,7 +225,7 @@ export function createLab(report) {
       const count = Math.min(ring.count, 7000);
       const first = ring.count - count;
       const bands = 14;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.lineJoin = "round";
       for (let band = 0; band < bands; band++) {
         const from = first + Math.floor((count * band) / bands);
@@ -248,7 +248,7 @@ export function createLab(report) {
       for (let i = 0; i < total; i++) {
         ctx.globalAlpha = i === total - 1 ? 1 : 0.75;
         ctx.beginPath();
-        ctx.arc(phasePlot.px(strobe.x[i]), phasePlot.py(strobe.v[i]), i === total - 1 ? 3.2 : 1.7, 0, 2 * Math.PI);
+        ctx.arc(phasePlot.px(strobe.x[i]), phasePlot.py(strobe.v[i]), i === total - 1 ? 4 : 2.4, 0, 2 * Math.PI);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -288,7 +288,7 @@ export function createLab(report) {
       }
     });
     if (hover && !dragging) {
-      ctx.font = `11px ${colors.mono}`;
+      ctx.font = `14px ${colors.mono}`;
       ctx.fillStyle = colors.ink2;
       ctx.textAlign = "right";
       ctx.textBaseline = "top";
@@ -308,7 +308,7 @@ export function createLab(report) {
     plot.zeroLines();
     plot.clip(() => {
       ctx.strokeStyle = color;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 2.3;
       ctx.lineJoin = "round";
       ctx.beginPath();
       let started = false;
@@ -329,7 +329,7 @@ export function createLab(report) {
       ctx.fillStyle = colors.ink;
       for (let i = strobe.t.length - 1; i >= 0 && strobe.t[i] >= end - span; i--) {
         ctx.beginPath();
-        ctx.arc(plot.px(strobe.t[i]), plot.py(source[i]), 2.4, 0, 2 * Math.PI);
+        ctx.arc(plot.px(strobe.t[i]), plot.py(source[i]), 3, 0, 2 * Math.PI);
         ctx.fill();
       }
     });
@@ -427,7 +427,7 @@ export function createLab(report) {
       ctx.stroke();
     }
     ctx.fillStyle = colors.ink;
-    ctx.font = `italic 15px ${colors.sans}`;
+    ctx.font = `italic 18px ${colors.sans}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("m", blockX, (blockTop + blockBottom) / 2);
@@ -453,15 +453,15 @@ export function createLab(report) {
       ctx.closePath();
       ctx.fill();
     }
-    ctx.font = `11px ${colors.mono}`;
+    ctx.font = `14px ${colors.mono}`;
     ctx.fillStyle = colors.ink2;
     ctx.textAlign = "right";
     ctx.textBaseline = "top";
     ctx.fillText(`F(t) = ${fmt(force, 3)} N`, width - 10, top - 4);
 
     // --- potential well with the forcing tilt, on the same x axis as the block
-    const wellTop = ground + 26;
-    const wellBottom = height - 22;
+    const wellTop = ground + 44;
+    const wellBottom = height - 28;
     const samples = 160;
     let vMin = Infinity;
     for (let i = 0; i <= samples; i++) vMin = Math.min(vMin, potential(p, -range.x + (2 * range.x * i) / samples));
@@ -473,7 +473,7 @@ export function createLab(report) {
 
     ctx.save();
     ctx.beginPath();
-    ctx.rect(wallX, wellTop - 12, width - wallX - 8, wellBottom - wellTop + 14);
+    ctx.rect(wallX, wellTop - 8, width - wallX - 8, wellBottom - wellTop + 10);
     ctx.clip();
     const curve = (tilted) => {
       ctx.beginPath();
@@ -513,7 +513,7 @@ export function createLab(report) {
     ctx.fill();
     ctx.restore();
 
-    ctx.font = `11px ${colors.mono}`;
+    ctx.font = `14px ${colors.mono}`;
     ctx.fillStyle = colors.ink3;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
@@ -525,10 +525,10 @@ export function createLab(report) {
       ctx.lineTo(toPx(tick) + 0.5, wellBottom + 4);
       ctx.stroke();
     }
-    ctx.font = `12px ${colors.sans}`;
+    ctx.font = `15px ${colors.sans}`;
     ctx.fillStyle = colors.ink2;
     ctx.textAlign = "left";
-    ctx.fillText("energia potencial V(x) − F(t)·x", wallX + 8, wellTop - 10);
+    ctx.fillText("energia potencial V(x) − F(t)·x", wallX + 8, ground + 12);
     ctx.textAlign = "right";
     ctx.fillText("x [m]", width - 10, wellBottom + 5);
   }

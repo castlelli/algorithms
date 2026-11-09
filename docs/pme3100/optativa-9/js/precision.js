@@ -107,11 +107,11 @@ function createConvergence(report) {
         ctx.fill();
       }
     });
-    ctx.font = `12px ${colors.sans}`;
+    ctx.font = `15px ${colors.sans}`;
     ctx.textBaseline = "middle";
     ctx.textAlign = "left";
     const x = plot.inner.left + 14;
-    let y = plot.inner.top + 34;
+    let y = plot.inner.top + 42;
     const entries = [
       ["dot", colors.cases.C, "calculado agora no navegador"],
       ["ring", colors.ink, "valor do relatório (Python)"],
@@ -136,7 +136,7 @@ function createConvergence(report) {
       }
       ctx.fillStyle = colors.ink2;
       ctx.fillText(text, x + 26, y);
-      y += 20;
+      y += 23;
     }
   }
 

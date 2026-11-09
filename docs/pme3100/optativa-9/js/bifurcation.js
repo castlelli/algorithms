@@ -84,7 +84,7 @@ export async function createBifurcation(report, lab) {
       ctx.fillStyle = colors.dark ? "rgba(255,255,255,0.05)" : "rgba(20,22,26,0.05)";
       ctx.fillRect(plot.px(lo), top, plot.px(hi) - plot.px(lo), height);
       if (withLabels) {
-        ctx.font = `12px ${colors.sans}`;
+        ctx.font = `15px ${colors.sans}`;
         ctx.fillStyle = colors.ink2;
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
@@ -102,7 +102,7 @@ export async function createBifurcation(report, lab) {
       ctx.stroke();
       ctx.setLineDash([]);
       if (withLabels && view === views.full) {
-        ctx.font = `12px ${colors.sans}`;
+        ctx.font = `15px ${colors.sans}`;
         ctx.textBaseline = "bottom";
         ctx.textAlign = "left";
         if (item.color) {
