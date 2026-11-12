@@ -13,7 +13,21 @@ const CANONICAL = { sen: "sin", tg: "tan", ln: "log", Abs: "abs" };
 const CONSTANTS = { pi: Math.PI, E: Math.E };
 const ALLOWED = [...Object.keys(FUNCTIONS), ...Object.keys(CONSTANTS)].sort().join(", ");
 
-export class ExpressionError extends Error {}
+import { decimal, t as tr } from "./i18n.js";
+
+const latexDecimal = () => (decimal() === "," ? "{,}" : ".");
+
+const FIELDS = { "ω": "omega", v: "v", R: "R", "φ₀": "phi0" };
+
+/** Input error; the message follows the page language, field names the input it came from. */
+export class ExpressionError extends Error {
+  constructor(key, vars = {}, field = null) {
+    super(tr(key, vars));
+    this.key = key;
+    this.vars = vars;
+    this.field = field;
+  }
+}
 
 // ------------------------------------------------------------------------- tree builders
 // Small constant folding keeps derivative trees short (d/dt of 0.5 is 0, not 0*1 + 0.5*0).
@@ -60,7 +74,7 @@ const call = (f, a) => ({ k: "call", f, a });
 // --------------------------------------------------------------------------------- parse
 const TOKEN = /\s*(?:((?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)|([A-Za-z_]\w*)|(\*\*|[-+*/^()]))/y;
 
-function tokenize(text, label) {
+function tokenize(text, label, field) {
   const tokens = [];
   let pos = 0;
   while (pos < text.length) {
@@ -69,7 +83,7 @@ function tokenize(text, label) {
     if (!m) {
       const rest = text.slice(pos).trim();
       if (!rest) break;
-      throw new ExpressionError(`${label} = "${text}": trecho "${rest.slice(0, 6)}" não permitido.`);
+      throw new ExpressionError("err.token", { label, text, piece: rest.slice(0, 6) }, field);
     }
     pos = TOKEN.lastIndex;
     if (m[1]) tokens.push({ k: "num", v: parseFloat(m[1]) });
@@ -83,23 +97,22 @@ function tokenize(text, label) {
 export function parse(text, name, allowT = true) {
   const label = allowT ? `${name}(t)` : name;
   text = String(text ?? "").trim();
-  if (!text) throw new ExpressionError(`${label}: expressão vazia.`);
-  const tokens = tokenize(text, label);
+  const field = FIELDS[name] ?? null;
+  if (!text) throw new ExpressionError("err.empty", { label }, field);
+  const tokens = tokenize(text, label, field);
   for (const tok of tokens) {
     if (tok.k !== "name") continue;
     if ((tok.v === "t" && allowT) || tok.v in FUNCTIONS || tok.v in CONSTANTS) continue;
     const extra = allowT ? "t, " : "";
-    throw new ExpressionError(
-      `${label} = "${text}": nome "${tok.v}" não permitido. Use ${extra}números, + - * / ** ^ ( ) e: ${ALLOWED}.`,
-    );
+    throw new ExpressionError("err.name", { label, text, name: tok.v, extra, allowed: ALLOWED }, field);
   }
   let i = 0;
   const peek = () => tokens[i];
   const isOp = (v) => peek() && peek().k === "op" && peek().v === v;
-  const fail = (why) => {
-    throw new ExpressionError(`${label} = "${text}": expressão inválida (${why}).`);
+  const fail = (whyKey, vars = {}) => {
+    throw new ExpressionError("err.invalid", { label, text, why: tr(whyKey, vars) }, field);
   };
-  const expect = (v) => (isOp(v) ? i++ : fail(`esperava "${v}"`));
+  const expect = (v) => (isOp(v) ? i++ : fail("why.expected", { v }));
 
   // sum := term (('+'|'-') term)* ; term := unary (('*'|'/') unary)*
   // unary := ('+'|'-') unary | power ; power := atom ('^' unary)?   (right-associative, -t^2 = -(t^2))
@@ -142,7 +155,7 @@ export function parse(text, name, allowT = true) {
   }
   function atom() {
     const tok = tokens[i++];
-    if (!tok) fail("terminou cedo");
+    if (!tok) fail("why.early");
     if (tok.k === "num") return num(tok.v);
     if (tok.k === "name") {
       if (tok.v === "t") return T;
@@ -157,14 +170,15 @@ export function parse(text, name, allowT = true) {
       expect(")");
       return { k: "group", a: inner };
     }
-    return fail(`"${tok.v}" fora do lugar`);
+    return fail("why.misplaced", { v: tok.v });
   }
 
   const tree = sum();
   if (i < tokens.length) {
     const next = tokens[i];
     const implicit = next.k !== "op" || next.v === "(";
-    fail(implicit ? "multiplicação exige *, ex.: 2*t" : `"${next.v}" fora do lugar`);
+    if (implicit) fail("why.implicit");
+    fail("why.misplaced", { v: next.v });
   }
   return tree;
 }
@@ -271,9 +285,9 @@ function latexNumber(v) {
   const text = Number.isInteger(v) ? String(v) : String(+v.toPrecision(12));
   if (text.includes("e")) {
     const [mantissa, exponent] = text.split("e");
-    return `${mantissa.replace(".", "{,}")} \\cdot 10^{${Number(exponent)}}`;
+    return `${mantissa.replace(".", latexDecimal())} \\cdot 10^{${Number(exponent)}}`;
   }
-  return text.replace(".", "{,}");
+  return text.replace(".", latexDecimal());
 }
 
 export function toLatex(node, parent = 0) {

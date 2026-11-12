@@ -1,8 +1,9 @@
-// The carousel-and-ant kinematics, mirrored from pme3100/optativa-6/codigo/modelo.py.
+// The carousel-and-ant kinematics, mirrored from the Python program (codigo/modelo.py).
 // r = R − ∫v and φ = φ₀ + ∫ω are integrated by Gauss–Legendre quadrature on a fine grid
 // (where Python has sympy's closed form); α and v̇ are exact derivatives of the typed expressions.
 
 import { ExpressionError, compile, derive, hasT, parse } from "./expr.js";
+import { decimal } from "./i18n.js";
 
 export const VELOCITIES = ["v_rel", "v_arr", "v_abs"];
 export const ACCELERATIONS = ["a_rel", "a_arr", "a_cor", "a_abs"];
@@ -21,7 +22,7 @@ const GL5 = [
   [Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3, (322 - 13 * Math.sqrt(70)) / 900],
 ];
 
-const g4 = (x) => String(Number(x.toPrecision(4))).replace(".", ",").replace("-", "−");
+const g4 = (x) => String(Number(x.toPrecision(4))).replace(".", decimal()).replace("-", "−");
 
 function quad(f, a, b, rule) {
   const half = (b - a) / 2;
@@ -31,19 +32,19 @@ function quad(f, a, b, rule) {
   return sum * half;
 }
 
-function constant(text, name) {
+function constant(text, name, field) {
   if (typeof text === "number") {
-    if (!Number.isFinite(text)) throw new ExpressionError(`${name} = ${text}: deve ser um número finito.`);
+    if (!Number.isFinite(text)) throw new ExpressionError("err.finiteConst", { name, value: text }, field);
     return text;
   }
   return compile(parse(text, name, false))(0);
 }
 
 function checkFinite(fns, t0, t1) {
-  for (const [name, f] of Object.entries(fns)) {
+  for (const [name, [f, field]] of Object.entries(fns)) {
     for (let i = 0; i < CHECK_POINTS; i++) {
       const t = t0 + ((t1 - t0) * i) / (CHECK_POINTS - 1);
-      if (!Number.isFinite(f(t))) throw new ExpressionError(`${name} não é finita/real em t ≈ ${g4(t)} s; revise a expressão.`);
+      if (!Number.isFinite(f(t))) throw new ExpressionError("err.notFinite", { name, t: g4(t) }, field);
     }
   }
 }
@@ -54,11 +55,11 @@ function checkFinite(fns, t0, t1) {
  */
 export function createMotion(params) {
   const tmax = params.tmax ?? 60;
-  const R = constant(params.R, "R");
-  const phi0 = constant(params.phi0, "φ₀");
+  const R = constant(params.R, "R", "R");
+  const phi0 = constant(params.phi0, "φ₀", "phi0");
   const dt = Number(params.dt);
-  if (!(R > 0)) throw new ExpressionError(`R = ${params.R}: o raio do carrossel deve ser positivo.`);
-  if (!(Number.isFinite(dt) && dt > 0)) throw new ExpressionError(`Δt = ${params.dt}: o intervalo de exibição deve ser positivo.`);
+  if (!(R > 0)) throw new ExpressionError("err.R", { value: params.R }, "R");
+  if (!(Number.isFinite(dt) && dt > 0)) throw new ExpressionError("err.dt", { value: params.dt }, "dt");
 
   const omegaTree = parse(params.omega, "ω");
   const vTree = parse(params.v, "v");
@@ -66,7 +67,7 @@ export function createMotion(params) {
   const v = compile(vTree);
   const alpha = compile(derive(omegaTree));
   const vdot = compile(derive(vTree));
-  checkFinite({ ω: omega, v }, 0, tmax);
+  checkFinite({ ω: [omega, "omega"], v: [v, "v"] }, 0, tmax);
 
   // Cumulative integrals at the cell edges, until r crosses zero (or t_max).
   const intV = [0];
@@ -111,15 +112,12 @@ export function createMotion(params) {
     }
   }
 
-  checkFinite({ "α = dω/dt": alpha, "dv/dt": vdot }, 0, tf);
+  checkFinite({ "α = dω/dt": [alpha, "omega"], "dv/dt": [vdot, "v"] }, 0, tf);
   for (let i = 0; i < CHECK_POINTS; i++) {
     const t = (tf * i) / (CHECK_POINTS - 1);
     const value = v(t);
     if (value < -V_NEGATIVE_TOL) {
-      throw new ExpressionError(
-        `v(t) = "${params.v}" fica negativa em t ≈ ${g4(t)} s (v = ${g4(value)} m/s). ` +
-          "v é o módulo da velocidade da formiga rumo ao centro e precisa ser ≥ 0 até ela chegar lá.",
-      );
+      throw new ExpressionError("err.vNegative", { text: params.v, t: g4(t), v: g4(value) }, "v");
     }
   }
 
@@ -127,7 +125,7 @@ export function createMotion(params) {
   if (tInstant === null || tInstant === "") tInstant = tf / 2;
   tInstant = Number(tInstant);
   if (!(tInstant >= 0 && tInstant <= tf)) {
-    throw new ExpressionError(`t = ${params.t} s fora do movimento: use 0 ≤ t ≤ t_f = ${g4(tf)} s.`);
+    throw new ExpressionError("err.tOut", { value: params.t, tf: g4(tf) });
   }
 
   const motion = {

@@ -293,7 +293,19 @@ sub {
 }
 .nav-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+.segmented.lang {
+  padding: 2px;
+}
+.segmented.lang button {
+  min-height: 30px;
+  padding: 3px 8px;
+  letter-spacing: 0.06em;
+}
+.i18n-wait body {
+  visibility: hidden;
 }
 
 /* --------------------------------------------------------------------------- buttons */
@@ -1124,7 +1136,7 @@ tr.dim td {
   }
   .wide-only,
   .back-label,
-  .nav-actions .button:first-child {
+  .nav-actions .report {
     display: none;
   }
   .nav {
