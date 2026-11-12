@@ -1,0 +1,37 @@
+name: pixelsmith
+
+on:
+  push:
+    paths: ["pixelsmith/**", "docs/pixelsmith/**", ".github/workflows/pixelsmith.yml"]
+  pull_request:
+    paths: ["pixelsmith/**", "docs/pixelsmith/**", ".github/workflows/pixelsmith.yml"]
+
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pixelsmith
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make
+      - name: Tests (AddressSanitizer + UndefinedBehaviorSanitizer)
+        run: make test
+      - name: Website golden data is up to date
+        run: |
+          make site-data
+          git diff --exit-code -- ../docs/pixelsmith/data
+
+  wasm:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pixelsmith
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 7.0.0
+      - name: Committed WebAssembly engine matches the sources
+        run: make check-wasm
