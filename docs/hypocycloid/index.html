@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hipocicloide</title>
+  <meta name="description" content="Um disco rola por dentro de um aro e um ponto dele desenha a hipocicloide. Curvatura, versores, velocidade, aceleração e o triedro de Frenet, calculados no navegador." data-i18n-content="doc.description">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="Hipocicloide · Hypocycloid">
+  <meta property="og:description" content="Geometria diferencial ao vivo: o disco que rola, o círculo osculador, a lei horária e o triedro de Frenet." data-i18n-content="og.description">
+  <link rel="alternate" hreflang="pt-BR" href="https://castlelli.github.io/algorithms/hypocycloid/?lang=pt">
+  <link rel="alternate" hreflang="en" href="https://castlelli.github.io/algorithms/hypocycloid/?lang=en">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1d33'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%237d8fb0' stroke-width='1.2' stroke-dasharray='2 1.6'/%3E%3Cpath d='M28 16 Q16 16 10 26.4 Q16 16 10 5.6 Q16 16 28 16Z' fill='none' stroke='%23e6edf7' stroke-width='1.6' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='16' r='2.4' fill='%23ff6b7d'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css?v=1">
+  <script>
+    // Applies the saved theme before first paint, and hides the Portuguese markup for a moment
+    // when the page is about to switch to English (released by js/i18n.js, or after 1.5 s).
+    try { const saved = localStorage.getItem("theme"); if (saved) document.documentElement.dataset.theme = saved; } catch (error) {}
+    (function () {
+      let lang = new URLSearchParams(location.search).get("lang");
+      try { if (lang !== "en" && lang !== "pt") lang = localStorage.getItem("lang"); } catch (error) {}
+      if (lang !== "en" && lang !== "pt") lang = (navigator.language || "pt").toLowerCase().startsWith("pt") ? "pt" : "en";
+      if (lang === "en") {
+        document.documentElement.lang = "en";
+        document.documentElement.classList.add("i18n-wait");
+        setTimeout(function () { document.documentElement.classList.remove("i18n-wait"); }, 1500);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#lab" data-i18n="skip">Ir para o laboratório</a>
+
+  <header class="nav">
+    <a class="back" href="https://castlelli.github.io/pt/#work" data-i18n-href data-href-pt="https://castlelli.github.io/pt/#work" data-href-en="https://castlelli.github.io/#work" aria-label="Voltar ao portfólio de Vinicius Castelli" data-i18n-aria="nav.back"><span aria-hidden="true">←</span><span class="back-label" data-i18n="nav.backLabel">Portfólio</span></a>
+    <a class="brand" href="#topo" data-i18n="nav.brand">Hipo<em>cicloide</em></a>
+    <nav aria-label="Seções" data-i18n-aria="nav.sections">
+      <a href="#lab"><span>01</span><b data-i18n="nav.lab">Laboratório</b></a>
+      <a href="#razoes"><span>02</span><b data-i18n="nav.ratios">Razões</b></a>
+      <a href="#curvatura"><span>03</span><b data-i18n="nav.curvature">Curvatura</b></a>
+      <a href="#versores"><span>04</span><b data-i18n="nav.frame">Versores</b></a>
+      <a href="#lei"><span>05</span><b data-i18n="nav.motion">Lei horária</b></a>
+      <a href="#frenet"><span>06</span><b data-i18n="nav.frenet">Frenet</b></a>
+      <a href="#conferencia"><span>07</span><b data-i18n="nav.check">Conferência</b></a>
+    </nav>
+    <div class="nav-actions">
+      <a class="button ghost report" href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-5/Tarefa5.pdf" data-i18n="nav.report">Relatório<span class="wide-only"> em PDF</span></a>
+      <div class="segmented small lang" data-lang-toggle role="group" aria-label="Idioma" data-i18n-aria="nav.lang">
+        <button type="button" data-value="pt" lang="pt-BR" aria-pressed="true">PT</button>
+        <button type="button" data-value="en" lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="button ghost" type="button" data-theme-toggle aria-label="Alternar entre tema claro e escuro" data-i18n-aria="theme.aria">Tema</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="topo">
+      <div class="hero-text">
+        <p class="eyebrow" data-i18n="hero.eyebrow">Mecânica I · Optativa 5 · Cinemática do ponto</p>
+        <h1 data-i18n="hero.title">Um disco que rola <em>por dentro</em> de outro</h1>
+        <p class="lede" data-i18n="hero.lede">Um ponto da borda do disco desenha a hipocicloide: arcos que se encontram em bicos onde o ponto para. Curvatura, versores, velocidade e o triedro de Frenet, calculados ao vivo no seu navegador.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#lab" data-i18n="hero.open">Abrir o laboratório</a>
+          <a class="button" href="#frenet" data-i18n="hero.frenet">Ir para o 3D</a>
+        </div>
+        <dl class="dials" aria-live="off">
+          <div><dt>R/r</dt><dd data-hero="ratio">5</dd><span data-hero="frac"></span></div>
+          <div><dt>θ</dt><dd data-hero="theta">0</dd><span>rad</span></div>
+          <div><dt>|P′|</dt><dd data-hero="speed">0</dd><span data-i18n="hero.speedUnit">por rad</span></div>
+          <div><dt>ρ</dt><dd data-hero="rho">0</dd><span data-i18n="hero.rhoUnit">raio</span></div>
+        </dl>
+      </div>
+      <figure class="hero-figure sheet">
+        <canvas id="hero" aria-label="Um disco rola por dentro de um aro e um ponto da sua borda desenha a hipocicloide; a razão R/r muda a cada volta completa" data-i18n-aria="hero.aria"></canvas>
+        <figcaption><span data-hero="caption"></span><span class="sheet-id">FIG. 0</span></figcaption>
+      </figure>
+    </section>
+
+    <!-- 01 ------------------------------------------------------------------------------ -->
+    <section class="section" id="lab">
+      <header class="section-head">
+        <p class="index">01</p>
+        <div>
+          <p class="items" data-i18n="lab.items">itens 1.1 · 1.2 · 1.3</p>
+          <h2 data-i18n="lab.title">O disco que <em>rola</em></h2>
+          <p class="section-lede" data-i18n="lab.lede">Escolha os raios e veja a curva nascer. Rolar sem escorregar quer dizer que o ponto de contato I está parado naquele instante: o disco inteiro gira em torno dele, e por isso a velocidade de P é perpendicular a IP.</p>
+        </div>
+      </header>
+
+      <div class="lab-grid">
+        <aside class="panel controls">
+          <div class="slider-block">
+            <label for="lab-R"><span><i>R</i> <span data-i18n="lab.ring">· aro</span></span> <output data-lab-out="R"></output></label>
+            <input id="lab-R" type="range" min="2" max="10" step="0.5" value="5">
+          </div>
+          <div class="slider-block">
+            <label for="lab-r"><span><i>r</i> <span data-i18n="lab.disk">· disco</span></span> <output data-lab-out="r"></output></label>
+            <input id="lab-r" type="range" min="0.5" max="6" step="0.25" value="1">
+          </div>
+          <p class="error" data-lab-error role="alert"></p>
+          <dl class="facts" data-lab-facts></dl>
+          <div class="formula" data-tex="\begin{aligned}x &amp;= (R-r)\cos\theta + r\cos\tfrac{R-r}{r}\theta\\ y &amp;= (R-r)\sin\theta - r\sin\tfrac{R-r}{r}\theta\end{aligned}" data-display></div>
+          <div class="toggles">
+            <button class="chip" type="button" aria-pressed="true" data-lab-toggle="contact" data-i18n="lab.contact">Centro instantâneo I</button>
+            <button class="chip" type="button" aria-pressed="true" data-lab-toggle="velocity" data-i18n="lab.velocity">Velocidade de P</button>
+            <button class="chip" type="button" aria-pressed="false" data-lab-toggle="cusps" data-i18n="lab.cusps">Bicos</button>
+          </div>
+        </aside>
+
+        <div class="lab-stage">
+          <figure class="panel sheet stage">
+            <canvas id="lab-scene" aria-label="O aro, o disco rolando, o ponto P e o traço da hipocicloide" data-i18n-aria="lab.sceneAria"></canvas>
+            <figcaption><span data-lab-caption></span><span class="sheet-id">FIG. 1</span></figcaption>
+          </figure>
+          <div class="transport">
+            <button class="button primary" type="button" data-lab-play>Pausar</button>
+            <button class="button" type="button" data-lab-restart data-i18n="lab.restart">Recomeçar</button>
+            <div class="slider-block grow">
+              <label for="lab-theta"><span>θ</span> <output data-lab-out="theta">0</output></label>
+              <input id="lab-theta" type="range" min="0" max="1000" step="1" value="0">
+            </div>
+            <div class="segmented small" data-lab-speed role="group" aria-label="Velocidade da animação" data-i18n-aria="lab.speed">
+              <button type="button" data-value="0.5" aria-pressed="false">0.5×</button>
+              <button type="button" data-value="1" aria-pressed="true">1×</button>
+              <button type="button" data-value="3" aria-pressed="false">3×</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="snap-head">
+        <div>
+          <h3 data-i18n="lab.snapTitle">Instantâneos</h3>
+          <p data-i18n="lab.snapLede">Fotografe o instante atual, ou gere os seis instantâneos igualmente espaçados do relatório.</p>
+        </div>
+        <div class="snap-actions">
+          <button class="button" type="button" data-snap="now" data-i18n="lab.snapNow">Fotografar agora</button>
+          <button class="button" type="button" data-snap="six" data-i18n="lab.snapSix">Seis instantâneos</button>
+          <button class="button ghost" type="button" data-snap="clear" data-i18n="lab.snapClear">Limpar</button>
+        </div>
+      </div>
+      <ol class="snaps" data-snaps aria-live="polite"></ol>
+    </section>
+
+    <!-- 02 ------------------------------------------------------------------------------ -->
+    <section class="section" id="razoes">
+      <header class="section-head">
+        <p class="index">02</p>
+        <div>
+          <p class="items" data-i18n="ratios.items">item 1.4</p>
+          <h2 data-i18n="ratios.title">A razão <em>R/r</em> decide a forma</h2>
+          <p class="section-lede" data-i18n="ratios.lede">Se R/r = p/q em fração irredutível, a curva tem p bicos e fecha depois de q voltas do centro do disco. Se a razão é irracional, ela nunca fecha e vai preenchendo um anel.</p>
+        </div>
+      </header>
+      <ul class="gallery" data-gallery></ul>
+
+      <div class="explorer">
+        <figure class="panel sheet square">
+          <canvas id="ratio-scene" aria-label="Hipocicloide para a razão escolhida, desenhada volta a volta" data-i18n-aria="ratios.aria"></canvas>
+          <figcaption><span data-ratio-caption></span><span class="sheet-id">FIG. 2</span></figcaption>
+        </figure>
+        <div class="explorer-side">
+          <div class="slider-block">
+            <label for="ratio-k"><span>R/r</span> <output data-ratio-out></output></label>
+            <input id="ratio-k" type="range" min="1.2" max="9" step="0.001" value="2.5">
+          </div>
+          <div class="chips" data-ratio-presets role="group" aria-label="Razões prontas" data-i18n-aria="ratios.presets">
+            <button class="chip" type="button" data-value="3">3</button>
+            <button class="chip" type="button" data-value="4">4</button>
+            <button class="chip" type="button" data-value="3.5">7/2</button>
+            <button class="chip" type="button" data-value="2.5">5/2</button>
+            <button class="chip" type="button" data-value="1.6">8/5</button>
+            <button class="chip" type="button" data-value="5.142857142857143">36/7</button>
+            <button class="chip" type="button" data-value="3.141592653589793">π</button>
+            <button class="chip" type="button" data-value="2.718281828459045">e</button>
+          </div>
+          <dl class="facts big" data-ratio-facts></dl>
+          <div class="transport tight">
+            <button class="button primary" type="button" data-ratio-play data-i18n="ratios.draw">Desenhar de novo</button>
+          </div>
+          <p class="footnote" data-i18n="ratios.note">Comprimento de um arco entre bicos: 8r(R − r)/R. A curva fechada tem p arcos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 ------------------------------------------------------------------------------ -->
+    <section class="section" id="curvatura">
+      <header class="section-head">
+        <p class="index">03</p>
+        <div>
+          <p class="items" data-i18n="curv.items">item 1.5</p>
+          <h2 data-i18n="curv.title">O círculo que <em>beija</em> a curva</h2>
+          <p class="section-lede" data-i18n="curv.lede">Arraste o ponto ao longo da curva. O círculo osculador é o que melhor a acompanha ali; o seu raio é o raio de curvatura ρ. Ele é máximo no meio de cada arco e vai a zero nos bicos.</p>
+        </div>
+      </header>
+      <div class="curv-grid">
+        <figure class="panel sheet square">
+          <canvas id="curv-scene" class="draggable" aria-label="Hipocicloide com o círculo osculador no ponto escolhido; arraste para mover o ponto" data-i18n-aria="curv.aria"></canvas>
+          <figcaption><span data-i18n="curv.caption">Arraste sobre a curva</span><span class="sheet-id">FIG. 3</span></figcaption>
+        </figure>
+        <div class="curv-side">
+          <div class="toggles">
+            <button class="chip" type="button" aria-pressed="false" data-curv-toggle="evolute" data-i18n="curv.evolute">Evoluta (lugar dos centros)</button>
+            <button class="chip" type="button" aria-pressed="true" data-curv-toggle="points" data-i18n="curv.points">Pontos do relatório</button>
+          </div>
+          <dl class="readout" data-curv-readout></dl>
+          <div class="formula" data-tex="\rho = \frac{|\mathbf r'|^3}{|x'y''-y'x''|} = \frac{4r(R-r)}{|R-2r|}\,\Bigl|\sin\frac{R\theta}{2r}\Bigr|" data-display></div>
+          <figure class="panel chart">
+            <figcaption data-i18n="curv.chart">ρ(θ) num período <span>arraste aqui também</span></figcaption>
+            <canvas id="curv-chart" class="draggable" aria-label="Gráfico do raio de curvatura em função de θ" data-i18n-aria="curv.chartAria"></canvas>
+          </figure>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <caption data-i18n="curv.table">Raio de curvatura nos pontos do relatório</caption>
+          <thead><tr><th scope="col">#</th><th scope="col">θ [rad]</th><th scope="col">x</th><th scope="col">y</th><th scope="col">ρ</th></tr></thead>
+          <tbody data-curv-table></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 04 ------------------------------------------------------------------------------ -->
+    <section class="section" id="versores">
+      <header class="section-head">
+        <p class="index">04</p>
+        <div>
+          <p class="items" data-i18n="frame.items">item 1.6</p>
+          <h2 data-i18n="frame.title">Tangente e <em>normal</em> ao longo do caminho</h2>
+          <p class="section-lede" data-i18n="frame.lede">τ aponta para onde o ponto vai; n aponta para o centro de curvatura. Nos bicos τ inverte o sentido, porque o ponto para e volta, e nenhum dos dois versores existe.</p>
+        </div>
+      </header>
+      <div class="toolbar">
+        <div class="slider-block compact">
+          <label for="frame-count"><span data-i18n="frame.count">Pontos</span> <output data-frame-out></output></label>
+          <input id="frame-count" type="range" min="4" max="60" step="1" value="8">
+        </div>
+        <div class="segmented" data-frame-mode role="group" aria-label="O que desenhar" data-i18n-aria="frame.mode">
+          <button type="button" data-value="unit" aria-pressed="true" data-i18n="frame.unit">Versores τ e n</button>
+          <button type="button" data-value="comb" aria-pressed="false" data-i18n="frame.comb">Pente de curvatura (ρn)</button>
+        </div>
+        <button class="button" type="button" data-frame-play data-i18n="frame.play">Deslizar</button>
+      </div>
+      <figure class="panel sheet wide">
+        <canvas id="frame-scene" aria-label="Versores tangente e normal em pontos da hipocicloide" data-i18n-aria="frame.aria"></canvas>
+        <figcaption><span data-frame-caption></span><span class="sheet-id">FIG. 4</span></figcaption>
+      </figure>
+      <div class="formula center" data-tex="\boldsymbol\tau = \frac{\mathbf r'}{|\mathbf r'|},\qquad \mathbf n = \operatorname{sinal}(x'y''-y'x'')\,(-\tau_y,\ \tau_x),\qquad \frac{d\boldsymbol\tau}{ds} = \frac{\mathbf n}{\rho}" data-display></div>
+    </section>
+
+    <!-- 05 ------------------------------------------------------------------------------ -->
+    <section class="section" id="lei">
+      <header class="section-head">
+        <p class="index">05</p>
+        <div>
+          <p class="items" data-i18n="motion.items">item 1.7</p>
+          <h2 data-i18n="motion.title">Velocidade e aceleração com <em>θ = ωt</em></h2>
+          <p class="section-lede" data-i18n="motion.lede">Com ω = π/60 rad/s, o centro do disco dá uma volta em 120 s. A aceleração se decompõe em a<sub>t</sub>τ, que muda a rapidez, e a<sub>n</sub>n = (ṡ²/ρ)n, que muda a direção.</p>
+        </div>
+      </header>
+      <div class="motion-grid">
+        <figure class="panel sheet square">
+          <canvas id="motion-scene" aria-label="O ponto P com os vetores velocidade e aceleração e a decomposição intrínseca" data-i18n-aria="motion.aria"></canvas>
+          <figcaption><span data-motion-caption></span><span class="sheet-id">FIG. 5</span></figcaption>
+        </figure>
+        <div class="motion-side">
+          <div class="transport tight">
+            <button class="button primary" type="button" data-motion-play>Pausar</button>
+            <div class="slider-block grow">
+              <label for="motion-t"><span>t</span> <output data-motion-out></output></label>
+              <input id="motion-t" type="range" min="0" max="1000" step="1" value="0">
+            </div>
+          </div>
+          <div class="toggles">
+            <button class="chip" type="button" aria-pressed="true" data-motion-toggle="parts" data-i18n="motion.parts">a<sub>t</sub>τ e a<sub>n</sub>n</button>
+            <button class="chip" type="button" aria-pressed="true" data-motion-toggle="instants" data-i18n="motion.instants">Três instantes do relatório</button>
+          </div>
+          <dl class="readout" data-motion-readout></dl>
+          <figure class="panel chart">
+            <figcaption data-i18n="motion.chart">ṡ, a<sub>t</sub> e a<sub>n</sub> ao longo de um período <span>arraste para mudar t</span></figcaption>
+            <canvas id="motion-chart" class="draggable" aria-label="Rapidez e componentes intrínsecas da aceleração em função do tempo" data-i18n-aria="motion.chartAria"></canvas>
+          </figure>
+        </div>
+      </div>
+      <div class="toolbar">
+        <form class="fields inline" data-motion-form autocomplete="off">
+          <span class="fields-label" data-i18n="motion.instantsLabel">Instantes [s]</span>
+          <input name="t0" type="text" inputmode="decimal" aria-label="Instante 1">
+          <input name="t1" type="text" inputmode="decimal" aria-label="Instante 2">
+          <input name="t2" type="text" inputmode="decimal" aria-label="Instante 3">
+        </form>
+        <div class="segmented" data-motion-form-kind role="group" aria-label="Forma" data-i18n-aria="motion.kind">
+          <button type="button" data-value="cart" aria-pressed="true" data-i18n="motion.cart">Cartesiana</button>
+          <button type="button" data-value="intr" aria-pressed="false" data-i18n="motion.intr">Intrínseca</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <caption data-motion-table-caption></caption>
+          <thead data-motion-head></thead>
+          <tbody data-motion-table></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 06 ------------------------------------------------------------------------------ -->
+    <section class="section" id="frenet">
+      <header class="section-head">
+        <p class="index">06</p>
+        <div>
+          <p class="items" data-i18n="frenet.items">itens 2.1 · 2.2 · 2.3</p>
+          <h2 data-i18n="frenet.title">Um triedro que <em>viaja</em> pela curva</h2>
+          <p class="section-lede" data-i18n="frenet.lede">A cúbica reversa r(λ) = (λ, λ², λ³) não cabe num plano. Em cada ponto, τ, n e b formam um triedro direto; o plano de τ e n é o plano osculador, onde fica o círculo osculador. Arraste para girar.</p>
+        </div>
+      </header>
+      <div class="frenet-grid">
+        <figure class="panel sheet square">
+          <canvas id="frenet-scene" class="draggable rotate" aria-label="A cúbica reversa em 3D com o triedro de Frenet; arraste para girar" data-i18n-aria="frenet.aria"></canvas>
+          <figcaption><span data-i18n="frenet.caption">Arraste para girar · sombras nos planos coordenados</span><span class="sheet-id">FIG. 6</span></figcaption>
+        </figure>
+        <div class="frenet-side">
+          <div class="transport tight">
+            <button class="button primary" type="button" data-frenet-play>Pausar</button>
+            <div class="slider-block grow">
+              <label for="frenet-l"><span>λ</span> <output data-frenet-out></output></label>
+              <input id="frenet-l" type="range" min="-1.3" max="1.3" step="0.001" value="0.5">
+            </div>
+          </div>
+          <div class="toggles">
+            <button class="chip" type="button" aria-pressed="true" data-frenet-toggle="plane" data-i18n="frenet.plane">Plano e círculo osculadores</button>
+            <button class="chip" type="button" aria-pressed="true" data-frenet-toggle="shadows" data-i18n="frenet.shadows">Projeções</button>
+            <button class="chip" type="button" aria-pressed="true" data-frenet-toggle="points" data-i18n="frenet.points">Três pontos do relatório</button>
+          </div>
+          <dl class="readout" data-frenet-readout></dl>
+          <div class="segmented small" data-frenet-view role="group" aria-label="Vista" data-i18n-aria="frenet.view">
+            <button type="button" data-value="iso" aria-pressed="true">3D</button>
+            <button type="button" data-value="xy" aria-pressed="false">xy</button>
+            <button type="button" data-value="xz" aria-pressed="false">xz</button>
+            <button type="button" data-value="yz" aria-pressed="false">yz</button>
+          </div>
+          <div class="formula" data-tex="\kappa = \frac{|\mathbf r'\times\mathbf r''|}{|\mathbf r'|^3},\quad \boldsymbol\tau = \frac{\mathbf r'}{|\mathbf r'|},\quad \mathbf b = \frac{\mathbf r'\times\mathbf r''}{|\mathbf r'\times\mathbf r''|},\quad \mathbf n = \mathbf b\times\boldsymbol\tau" data-display></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <caption data-i18n="frenet.table">Curvatura e triedro nos pontos do relatório</caption>
+          <thead><tr><th scope="col">λ</th><th scope="col">P</th><th scope="col">ρ</th><th scope="col" data-i18n="frenet.torsion">torção</th><th scope="col">τ</th><th scope="col">n</th><th scope="col">b</th></tr></thead>
+          <tbody data-frenet-table></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 07 ------------------------------------------------------------------------------ -->
+    <section class="section" id="conferencia">
+      <header class="section-head">
+        <p class="index">07</p>
+        <div>
+          <p class="items" data-i18n="check.items">verificação</p>
+          <h2 data-i18n="check.title">O navegador <em>confere</em> o relatório</h2>
+          <p class="section-lede" data-i18n="check.lede">O relatório foi calculado em Python. Aqui o navegador refaz as mesmas contas, com as mesmas checagens (derivadas numéricas, Frenet–Serret, rolamento sem escorregar, comprimento por quadratura), e compara número a número.</p>
+        </div>
+      </header>
+      <div class="toolbar">
+        <button class="button primary" type="button" data-check-run data-i18n="check.run">Recalcular agora</button>
+        <span class="status" data-check-status role="status"></span>
+      </div>
+      <div class="check-grid">
+        <div class="table-wrap">
+          <table class="data check">
+            <caption data-i18n="check.valuesCaption">Valores das tabelas</caption>
+            <thead><tr><th scope="col" data-i18n="check.quantity">Grandeza</th><th scope="col" data-i18n="check.report">Relatório</th><th scope="col" data-i18n="check.browser">Navegador</th><th scope="col" data-i18n="check.difference">Diferença</th></tr></thead>
+            <tbody data-check-values></tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <table class="data check">
+            <caption data-i18n="check.rowsCaption">Verificações</caption>
+            <thead><tr><th scope="col" data-i18n="check.check">Verificação</th><th scope="col" data-i18n="check.report">Relatório</th><th scope="col" data-i18n="check.browser">Navegador</th><th scope="col" data-i18n="check.tolerance">Tolerância</th></tr></thead>
+            <tbody data-check-rows></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p data-i18n="footer.credit">Vinicius Castelli, NUSP 17864509. Mecânica I, Escola Politécnica da USP, 2026.</p>
+    <p>
+      <a href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-5/Tarefa5.pdf" data-i18n="footer.report">Relatório em PDF</a>
+      <a href="https://github.com/castlelli/algorithms/tree/main/pme3100/optativa-5" data-i18n="footer.python">Código em Python</a>
+      <a href="https://github.com/castlelli/algorithms/tree/main/docs/hypocycloid" data-i18n="footer.site">Código deste site</a>
+    </p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+  <script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>
