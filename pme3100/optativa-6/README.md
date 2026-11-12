@@ -5,6 +5,8 @@ o centro, com velocidade relativa v(t). O programa calcula (a) a lei de moviment
 (b) as velocidades, (c) as acelerações (incluindo a de Coriolis) e (d) uma animação em vista
 de topo. Para cada caso, gera um relatório em PDF com a animação embutida, um MP4 e um GIF.
 
+Versão interativa: <https://castlelli.github.io/algorithms/carousel/>
+
 ## Como rodar
 
 ```bash
@@ -21,6 +23,9 @@ $PY -m pytest -q
 
 # 4. Gerar os três casos prontos em resultado/ (~1 min cada)
 $PY -m codigo --todos
+
+# Exporta os números dos casos prontos para o site (docs/carousel/data)
+$PY -m codigo --site
 
 # Opcional: um caso próprio
 $PY -m codigo --omega "0.5+0.2*t" --v "0.3" --R 2 --phi0 0 --dt 0.5 --t 1.7
@@ -39,6 +44,7 @@ Na primeira execução, o tectonic baixa os pacotes LaTeX, o que leva cerca de 1
 | `--t` | instante dos itens (b) e (c) [s] (padrão: t_f/2) |
 | `--sem-video` | não grava MP4/GIF |
 | `--so-tabela` | só imprime a tabela de (b) e (c) no terminal |
+| `--site` | exporta leis, tabelas e verificações dos casos prontos para o site |
 
 Nas expressões valem números, `t`, `+ - * / ^ ( )`, `pi`, `E` e as funções `sin cos tan exp log
 sqrt abs` (entre outras). A multiplicação precisa ser explícita: `2*t`, e não `2t`.
@@ -58,7 +64,11 @@ sqrt abs` (entre outras). A multiplicação precisa ser explícita: `2*t`, e nã
 - `resultado/animacao_todos.mp4`: os três vídeos em sequência, com um cartão de título antes
   de cada caso.
 - `resultado/relatorio_casoN.pdf`, `animacao_casoN.mp4` e `.gif`: os mesmos resultados, caso a caso.
-- `visualizador.html`: versão interativa, que roda direto no navegador.
+- `../../docs/carousel/`: o site interativo (HTML, CSS e JavaScript puros, sem etapa de build),
+  publicado em <https://castlelli.github.io/algorithms/carousel/>. `js/model.js` repete a cinemática
+  de `modelo.py` (as leis por quadratura de Gauss–Legendre; α e v̇ por derivada exata das expressões),
+  e a seção de conferência compara tudo com `data/report.json`, gerado por `--site`. Para ver
+  localmente: `python -m http.server` dentro de `docs/`.
 
 Na animação, as setas alternam a cada Δt: velocidades nos múltiplos pares de Δt e
 acelerações nos ímpares. O painel lateral mostra sempre os módulos dos dois grupos.
