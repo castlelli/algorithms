@@ -1,0 +1,26 @@
+[project]
+name = "hipocicloide"
+version = "1.0.0"
+description = "PME3100 · Tarefa 5: hipocicloide (curvatura, versores, velocidade e aceleração) e triedro de Frenet"
+requires-python = ">=3.10"
+dependencies = ["numpy", "matplotlib", "jinja2", "pillow"]
+
+[project.optional-dependencies]
+teste = ["pytest"]
+
+[project.scripts]
+hipocicloide = "codigo.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["codigo"]
+
+[tool.setuptools.package-data]
+codigo = ["templates/*.j2"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]

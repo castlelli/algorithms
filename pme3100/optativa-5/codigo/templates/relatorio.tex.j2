@@ -1,0 +1,352 @@
+%# Template do relatório (jinja2 com delimitadores \VAR{...} e \BLOCK{...}).
+\documentclass[11pt,a4paper]{article}
+\usepackage[brazilian]{babel}
+\usepackage[a4paper,textwidth=16cm,top=2.5cm,bottom=2.6cm,headheight=14pt,headsep=0.9cm,footskip=1.1cm]{geometry}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{STIXTwoText}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold,
+  ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic]
+\setmathfont{STIXTwoMath-Regular.otf}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs,array}
+\usepackage{siunitx}
+\usepackage[font=small,labelfont=bf,labelsep=period,margin=0.4cm]{caption}
+\usepackage[section]{placeins}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[skins,breakable]{tcolorbox}
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+
+\hypersetup{pdftitle={Hipocicloide e triedro de Frenet}, pdfauthor={Vinicius Castelli}}
+
+\sisetup{output-decimal-marker={,}, round-mode=figures, round-precision=4,
+  exponent-product=\cdot, per-mode=symbol, group-digits=integer, print-zero-exponent=false}
+
+\BLOCK{for k, c in cores.items()}
+\definecolor{\VAR{k.replace("_", "")}}{HTML}{\VAR{c[1:]}}
+\BLOCK{endfor}
+\definecolor{tinta}{HTML}{1F2328}
+\definecolor{cinza}{HTML}{6B7280}
+\definecolor{destaque}{HTML}{1B3A6B}
+\definecolor{fundo}{HTML}{EEF2F8}
+
+\newcommand\vb[1]{\symbf{#1}}
+\newcommand\ok{\textcolor{b}{$\checkmark$}}
+\newcommand\falha{\textcolor{n}{$\times$}}
+\newcommand\cab[1]{\multicolumn{1}{c}{#1}}
+
+\titleformat{\section}{\large\bfseries\color{tinta}}{\textcolor{destaque}{\thesection}}{0.7em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{tinta}}{\textcolor{destaque}{\thesubsection}}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.6em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{cinza}PME3100 · Mecânica I · Tarefa 5 (Optativa 5)}
+\fancyhead[R]{\small\color{cinza}Hipocicloide e triedro de Frenet}
+\fancyfoot[C]{\small\color{cinza}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{cinza!40}\hrule height\headrulewidth}
+
+\newtcolorbox{nota}[1][]{enhanced, breakable, colback=fundo, colframe=destaque,
+  boxrule=0pt, leftrule=2.5pt, arc=0pt, left=8pt, right=8pt, top=5pt, bottom=5pt, #1}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\renewcommand{\arraystretch}{1.18}
+
+\begin{document}
+\thispagestyle{empty}
+{\color{cinza}\small\scshape Escola Politécnica da USP · PME3100 Mecânica I · Cinemática do ponto}\par
+\vspace{0.3em}{\color{destaque}\rule{\linewidth}{1.2pt}}\par
+\vspace{0.6em}
+{\fontsize{26}{30}\selectfont\bfseries\color{tinta} Hipocicloide e triedro de Frenet}\par
+\vspace{0.35em}
+{\Large\color{tinta} Tarefa 5 (Optativa 5)}\par
+\vspace{1.0em}
+
+\textbf{Enunciado (resumo).} \emph{Parte 1.} Um disco de raio $r$ rola sem escorregar por dentro
+de um aro de raio $R > r$; o ponto $P$ do disco traça a hipocicloide. Pede-se: construir a curva
+(1.1), animar (1.2) e mostrar instantâneos (1.3) do processo de geração, traçá-la para quatro
+razões $R/r$ (1.4), calcular o raio de curvatura (1.5), desenhar os versores tangente e normal
+(1.6) e, com $\theta = \omega t$, $\omega = \pi/60~\unit{rad/s}$, dar velocidade e aceleração de
+$P$ nas formas cartesiana e intrínseca em três instantes (1.7). \emph{Parte 2.} Para a curva
+$x = \lambda$, $y = \lambda^2$, $z = \lambda^3$: construí-la (2.1), calcular o raio de curvatura em
+três pontos (2.2) e desenhar o triedro de Frenet nesses pontos (2.3).
+
+\textbf{Dados.} $R = \VAR{n(R)}$, $r = \VAR{n(r)}$ (unidades de comprimento quaisquer, que
+chamamos de metro), razões do item 1.4: \VAR{razoes_txt}; $\omega = \pi/60~\unit{rad/s}$, instantes
+$t = \VAR{instantes_txt}~\unit{s}$; pontos da parte 2: $\lambda = \VAR{lambdas_txt}$.
+
+\textbf{Versão interativa.} A mesma geometria, calculada no navegador, com o disco rolando,
+o círculo osculador, a lei horária, o triedro de Frenet em 3D e a conferência dos números deste
+relatório:
+\href{\VAR{url_site}}{\textcolor[HTML]{0563C1}{\underline{\nolinkurl{\VAR{url_site}}}}}.
+
+\vspace{0.6em}
+{\setcounter{tocdepth}{2}\small\tableofcontents}
+
+\vfill
+{\small\color{cinza} Notação: vetores em negrito; a linha indica derivada em relação ao parâmetro
+($\theta$ ou $\lambda$) e o ponto, em relação ao tempo.}
+
+\newpage
+%# ===================================================================== PARTE 1
+\section{Hipocicloide}
+
+\subsection{Construção da curva (1.1)}
+Seja $\theta$ o ângulo do centro $C$ do disco, medido a partir de $Ox$. O centro percorre um
+círculo de raio $a = R - r$. Como o disco rola sem escorregar, os arcos de contato são iguais,
+$R\theta = r(\theta + \psi)$, e o raio $CP$ gira no sentido oposto, de $\psi = k\theta$ com
+$k = (R - r)/r$. Daí
+\[
+x = (R-r)\cos\theta + r\cos(k\theta), \qquad y = (R-r)\sin\theta - r\sin(k\theta).
+\]
+Derivando em $\theta$ (com $rk = a$):
+\[
+\vb{r}' = a\begin{pmatrix} -\sin\theta - \sin k\theta \\ \cos\theta - \cos k\theta\end{pmatrix},\qquad
+\vb{r}'' = -a\begin{pmatrix} \cos\theta + k\cos k\theta \\ \sin\theta - k\sin k\theta\end{pmatrix},
+\qquad |\vb{r}'| = 2a\left|\sin\frac{R\theta}{2r}\right|.
+\]
+$P$ toca o aro e para ($|\vb{r}'| = 0$) quando $R\theta/2r$ é múltiplo de $\pi$: são os
+\emph{bicos}, em $\theta_m = 2\pi m\, r/R$. Se $R/r = p/q$ (fração irredutível), a curva fecha
+depois de $q$ voltas do centro, $\theta \in [0, 2\pi q]$, com $p$ bicos. Aqui
+$R/r = \VAR{p}/\VAR{q}$: \VAR{p} bicos, \VAR{q} volta\BLOCK{if q > 1}s\BLOCK{endif}. Cada arco entre
+bicos mede $8r(R-r)/R = \VAR{n(arco_bico)}$, e a curva toda, \VAR{n(comprimento)}.
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/curva.pdf}
+\caption{A hipocicloide para $R = \VAR{n(R)}$ e $r = \VAR{n(r)}$. O aro está tracejado e os bicos, em branco.}
+\end{figure}
+
+\subsection{Animação (1.2)}
+A animação está nos arquivos \texttt{hipocicloide.gif} e \texttt{hipocicloide.mp4}, e roda ao vivo
+no site. Ela mostra o disco rolando, o raio $CP$, o ponto de contato $I$ e o traço de $P$. A
+figura abaixo traz doze quadros igualmente espaçados em $\theta$.
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/quadros.pdf}
+\caption{Doze quadros da geração da curva, de $\theta = 0$ a $\theta = 2\pi q$.}
+\end{figure}
+
+\subsection{Instantâneos (1.3)}
+Nos instantâneos aparece também o ponto de contato $I$, o centro instantâneo de rotação do disco.
+Como o disco não escorrega, $I$ está parado naquele instante, e todo ponto do disco gira em torno
+dele: a velocidade de $P$ é perpendicular a $\overline{IP}$ (seta verde-azulada) e tem módulo
+$|\Omega|\,\overline{IP}$, com $\Omega = -k\dot\theta$ a velocidade angular absoluta do disco.
+Num bico, $P = I$ e a velocidade é nula.
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/instantaneos.pdf}
+\caption{Seis instantâneos, com o centro instantâneo $I$ (círculo branco), o segmento $IP$
+(tracejado) e a direção de $\vb{v}_P$.}
+\end{figure}
+
+\subsection{Várias razões \texorpdfstring{$R/r$}{R/r} (1.4)}
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/razoes.pdf}
+\caption{Hipocicloides com $r = 1$. Com $R/r = p/q$, a curva tem $p$ bicos e fecha em $q$ voltas.}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$R/r$ & $p/q$ & bicos & comprimento ($r = 1$) \\
+\midrule
+\BLOCK{for z in tab_razoes}
+\VAR{z.razao} & \VAR{z.frac} & \VAR{z.p} & \VAR{z.comp} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Raio de curvatura (1.5)}
+Para uma curva plana $\vb{r}(\theta)$, $\rho = |\vb{r}'|^3/|x'y'' - y'x''|$. Na hipocicloide,
+$x'y'' - y'x'' = 2a^2(1-k)\sin^2(R\theta/2r)$, e a razão simplifica para
+\[
+\rho(\theta) = \frac{4r(R-r)}{|R-2r|}\,\left|\sin\frac{R\theta}{2r}\right|.
+\]
+O raio é máximo no meio de cada arco, $4r(R-r)/|R-2r| = \VAR{n(rho_max)}$, e vai a zero nos bicos.
+Se $R = 2r$ a curva degenera num diâmetro do aro e $\rho = \infty$. Os pontos abaixo ficam
+espalhados entre os bicos. A tabela traz as duas fórmulas, que concordam até o arredondamento
+(seção~\ref{sec:verif}).
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/rho.pdf}
+\caption{À esquerda, os pontos escolhidos e os seus círculos osculadores (centro em $P + \rho\,\vb{n}$).
+À direita, $\rho(\theta)$ num período, com os bicos marcados.}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{@{}c c c c c@{}}
+\toprule
+ponto & {$\theta$ [rad]} & {$x$} & {$y$} & {$\rho$} \\
+\midrule
+\BLOCK{for z in tab_rho}
+\VAR{loop.index} & \VAR{z.theta} & \VAR{z.x} & \VAR{z.y} & \VAR{z.rho} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Versores tangente e normal (1.6)}
+$\boldsymbol{\tau} = \vb{r}'/|\vb{r}'|$ aponta no sentido de $\theta$ crescente. A normal principal
+é $\boldsymbol{\tau}$ girado de $90^\circ$ para o lado em que a curva vira:
+$\vb{n} = s\,(-\tau_y,\ \tau_x)$, com $s = \operatorname{sinal}(x'y'' - y'x'')$. Assim $\vb{n}$
+aponta sempre para o centro de curvatura, e $d\boldsymbol{\tau}/ds = \vb{n}/\rho$. Nos bicos
+$\boldsymbol{\tau}$ inverte o sentido e nenhum dos dois versores existe.
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/versores.pdf}
+\caption{$\boldsymbol{\tau}$ e $\vb{n}$ em \VAR{tab_vers|length} pontos (setas de comprimento fixo).}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{@{}c c c c c@{}}
+\toprule
+{$\theta$ [rad]} & {$\tau_x$} & {$\tau_y$} & {$n_x$} & {$n_y$} \\
+\midrule
+\BLOCK{for z in tab_vers}
+\VAR{z.theta} & \VAR{z.tx} & \VAR{z.ty} & \VAR{z.nx} & \VAR{z.ny} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Velocidade e aceleração (1.7)}
+Com $\theta = \omega t$ e $\omega$ constante, $\dot\theta = \omega$ e $\ddot\theta = 0$:
+\[
+\vb{v} = \omega\,\vb{r}'(\theta), \qquad \vb{a} = \omega^2\,\vb{r}''(\theta).
+\]
+Na forma intrínseca, $\vb{v} = \dot s\,\boldsymbol{\tau}$ e
+$\vb{a} = \ddot s\,\boldsymbol{\tau} + (\dot s^2/\rho)\,\vb{n}$, com
+$\dot s = |\vb{v}| = 2a\omega|\sin(R\theta/2r)|$. As componentes saem por projeção,
+$a_t = \vb{a}\cdot\boldsymbol{\tau} = \ddot s$ e $a_n = \vb{a}\cdot\vb{n} = \dot s^2/\rho$.
+O período completo dura $2\pi q/\omega = \VAR{n(periodo)}~\unit{s}$.
+
+\begin{center}
+\small
+\textbf{Forma cartesiana} (componentes em $\vb{i}$, $\vb{j}$; $\vb{v}$ em m/s, $\vb{a}$ em m/s²)\par\smallskip
+\begin{tabular}{@{}cccccccc@{}}
+\toprule
+$t$ [s] & $\theta$ [rad] & $x$ & $y$ & $v_x$ & $v_y$ & $a_x$ & $a_y$ \\
+\midrule
+\BLOCK{for z in tab_lei}
+\VAR{z.t} & \VAR{z.theta} & \VAR{z.x} & \VAR{z.y} & \VAR{z.vx} & \VAR{z.vy} & \VAR{z.ax} & \VAR{z.ay} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+
+\bigskip
+\textbf{Forma intrínseca} ($\vb{v} = \dot s\,\boldsymbol{\tau}$, $\vb{a} = a_t\boldsymbol{\tau} + a_n\vb{n}$)\par\smallskip
+\begin{tabular}{@{}c c c c c >{$}c<{$} >{$}c<{$}@{}}
+\toprule
+{$t$ [s]} & {$\dot s$ [m/s]} & {$a_t$ [m/s²]} & {$a_n$ [m/s²]} & {$\rho$} & {$\boldsymbol{\tau}$} & {$\vb{n}$} \\
+\midrule
+\BLOCK{for z in tab_lei}
+\VAR{z.t} & \VAR{z.s} & \VAR{z.at} & \VAR{z.an} & \VAR{z.rho} & (\VAR{z.tau}) & (\VAR{z.n}) \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/lei.pdf}
+\caption{$P$ nos três instantes, com $\vb{v}$, $\vb{a}$ e as componentes $a_t\boldsymbol{\tau}$ e
+$a_n\vb{n}$. Velocidades e acelerações têm escalas próprias: em cada uma, o maior vetor do período
+mediria $0{,}3R$.}
+\end{figure}
+
+\newpage
+%# ===================================================================== PARTE 2
+\section{Curva espacial e triedro de Frenet}
+
+\subsection{A curva (2.1)}
+$\vb{r}(\lambda) = (\lambda,\ \lambda^2,\ \lambda^3)$ é a \emph{cúbica reversa}. As derivadas são
+\[
+\vb{r}' = (1,\ 2\lambda,\ 3\lambda^2),\quad \vb{r}'' = (0,\ 2,\ 6\lambda),\quad \vb{r}''' = (0,\ 0,\ 6),
+\quad \vb{r}'\times\vb{r}'' = (6\lambda^2,\ -6\lambda,\ 2).
+\]
+Como $\vb{r}'\times\vb{r}''$ nunca se anula, a curva tem curvatura em todo ponto, e a torção
+nunca se anula: ela não fica contida em nenhum plano.
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/espacial.pdf}
+\caption{A cúbica reversa, com os pontos escolhidos.}
+\end{figure}
+
+\subsection{Raio de curvatura (2.2)}
+\[
+\kappa = \frac{|\vb{r}'\times\vb{r}''|}{|\vb{r}'|^3}, \qquad
+\rho = \frac1\kappa = \frac{(1 + 4\lambda^2 + 9\lambda^4)^{3/2}}{2\sqrt{1 + 9\lambda^2 + 9\lambda^4}}, \qquad
+\tau_\mathrm{tor} = \frac{(\vb{r}'\times\vb{r}'')\cdot\vb{r}'''}{|\vb{r}'\times\vb{r}''|^2} = \frac{3}{1 + 9\lambda^2 + 9\lambda^4}.
+\]
+
+\begin{center}
+\begin{tabular}{@{}c >{$}c<{$} c c c@{}}
+\toprule
+{$\lambda$} & {$P = (x, y, z)$} & {$\kappa$} & {$\rho$} & {torção} \\
+\midrule
+\BLOCK{for z in tab_frenet}
+\VAR{z.lam} & (\VAR{z.P}) & \VAR{z.kappa} & \VAR{z.rho} & \VAR{z.tor} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Triedro de Frenet (2.3)}
+\[
+\boldsymbol{\tau} = \frac{\vb{r}'}{|\vb{r}'|},\qquad
+\vb{b} = \frac{\vb{r}'\times\vb{r}''}{|\vb{r}'\times\vb{r}''|},\qquad
+\vb{n} = \vb{b}\times\boldsymbol{\tau}.
+\]
+
+\begin{center}
+\begin{tabular}{@{}c >{$}c<{$} >{$}c<{$} >{$}c<{$}@{}}
+\toprule
+{$\lambda$} & {$\boldsymbol{\tau}$} & {$\vb{n}$} & {$\vb{b}$} \\
+\midrule
+\BLOCK{for z in tab_frenet}
+\VAR{z.lam} & (\VAR{z.tau}) & (\VAR{z.n}) & (\VAR{z.b}) \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+\centering
+\includegraphics{\VAR{dir}/frenet.pdf}
+\caption{O triedro de Frenet nos pontos escolhidos: $\boldsymbol{\tau}$, $\vb{n}$ e $\vb{b}$.}
+\end{figure}
+
+%# ================================================================== VERIFICAÇÃO
+\section{Verificação}\label{sec:verif}
+Cada linha mede um erro que deveria ser zero. As derivadas numéricas (diferença central de cinco
+pontos) não usam nenhuma das fórmulas acima, então só passam se as contas estiverem certas.
+O site refaz todas estas checagens no navegador.
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{10.2cm} c c c@{}}
+\toprule
+verificação & valor & tolerância & \\
+\midrule
+\BLOCK{for c in checagens}
+\VAR{c.descricao} & \num[round-precision=2,scientific-notation=true]{\VAR{c.valor_txt}} & \num{\VAR{c.tolerancia}} & \BLOCK{if c.aprovado}\ok\BLOCK{else}\falha\BLOCK{endif} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
