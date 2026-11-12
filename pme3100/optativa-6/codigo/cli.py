@@ -70,6 +70,8 @@ def _argumentos() -> argparse.ArgumentParser:
     ap.add_argument("--build", type=Path, help="pasta de trabalho (LaTeX e quadros); padrão: temporária")
     ap.add_argument("--sem-video", action="store_true", help="não grava MP4/GIF (o PDF mantém a animação)")
     ap.add_argument("--so-tabela", action="store_true", help="só imprime a tabela do instante pedido")
+    ap.add_argument("--site", action="store_true",
+                    help="exporta os números dos casos prontos para o site interativo e sai")
     return ap
 
 
@@ -89,6 +91,11 @@ def _casos(a: argparse.Namespace, ap: argparse.ArgumentParser) -> list[Caso]:
 def main(argv: list[str] | None = None) -> int:
     ap = _argumentos()
     a = ap.parse_args(argv)
+    if a.site:
+        from .site import export_site
+
+        print(f"dados do site gravados em {export_site()}")
+        return 0
     casos = _casos(a, ap)
     movimentos = []
     for c in casos:

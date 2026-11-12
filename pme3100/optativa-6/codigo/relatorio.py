@@ -24,6 +24,7 @@ from .animacao import Escalas, VistaTopo, ferramenta
 from .estilo import CINZA, CINZA_CLARO, CORES, DISCO, FUNDO_ACC, FUNDO_VEL, ROTULOS, TINTA, aplicar_estilo, virgula
 from .formatacao import bruto, formato_s, latex_decimal, latex_num, mat, num, sig
 from .modelo import ACELERACOES, VELOCIDADES, VETORES, Movimento, grupo_no_instante
+from .site import URL_SITE
 from .verificacao import TOL_DERIVADA, erros_derivada, verificar
 
 import matplotlib.pyplot as plt  # noqa: E402  (animacao já fixou o backend Agg)
@@ -479,7 +480,8 @@ def escrever_pdf(ctxs: list[dict], tex: Path, pdf: Path, animado: bool = True) -
                           itens=env.get_template("caso_itens.tex.j2").render(**c)))
     titulo_pdf = ctxs[0]["titulo"] if len(ctxs) == 1 else "relatório conjunto"
     tex.write_text(env.get_template("documento.tex.j2").render(
-        casos=casos, cores=CORES, n=latex_num, titulo_pdf=titulo_pdf, animado=animado),
+        casos=casos, cores=CORES, n=latex_num, titulo_pdf=titulo_pdf, animado=animado,
+        url_site=URL_SITE),
         encoding="utf-8")
     avisos = compilar(tex)
     shutil.copyfile(tex.with_suffix(".pdf"), pdf)
