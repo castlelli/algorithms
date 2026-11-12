@@ -2,7 +2,8 @@
 //   v_abs = v_rel + v_arr     a_abs = a_rel + α∧OF + ω∧(ω∧OF) + a_cor
 
 import { norm, state } from "./model.js";
-import { VECTOR_INFO, vectorName } from "./lab.js";
+import { VECTOR_INFO, caseButtons, vectorDesc, vectorName, vectorSymbol } from "./lab.js";
+import { onLangChange, t as tr } from "./i18n.js";
 import { arrow, crisp, fmt, reducedMotion, segmented, setFill, theme, vectorLabel } from "./ui.js";
 
 const GROUPS = {
@@ -26,17 +27,20 @@ export function createSum(report, lab, motions) {
 
   // ---- term toggles
   const values = {};
+  const titles = {};
+  const descs = {};
   for (const [key, group] of Object.entries(GROUPS)) {
     const title = document.createElement("li");
     title.className = "group-title";
-    title.textContent = key === "v" ? "Velocidade" : "Aceleração";
+    titles[key] = title;
     termsList.append(title);
     for (const name of [...group.terms, group.total]) {
       const li = document.createElement("li");
       const isTotal = name === group.total;
       li.innerHTML = `<label><input type="checkbox" ${isTotal ? "checked disabled" : "checked"} data-term="${name}">`
-        + `${vectorName(name)}<span class="name"><small>${VECTOR_INFO[name].desc}</small></span><span class="value"></span></label>`;
+        + `${vectorName(name)}<span class="name"><small></small></span><span class="value"></span></label>`;
       values[name] = li.querySelector(".value");
+      descs[name] = li.querySelector("small");
       if (!isTotal) {
         li.querySelector("input").addEventListener("change", (event) => {
           if (event.target.checked) enabled.add(name);
@@ -120,7 +124,7 @@ export function createSum(report, lab, motions) {
     ctx.fillText("r", w - 18, cy - 8);
     ctx.fillText("φ", cx + 16, 22);
     ctx.font = `500 10px ${th.mono}`;
-    ctx.fillText(`grade: ${fmt(niceStep(ext / 4), stepDigits(ext / 4))} ${group.unit}`, 10, h - 12);
+    ctx.fillText(`${tr("sum.grid")}: ${fmt(niceStep(ext / 4), stepDigits(ext / 4))} ${group.unit}`, 10, h - 12);
 
     // Tip-to-tail.
     let x = 0;
@@ -167,7 +171,7 @@ export function createSum(report, lab, motions) {
         ctx.restore();
         ctx.fillStyle = th.ink2;
         ctx.font = `500 11px ${th.mono}`;
-        ctx.fillText("falta", (px + tx) / 2 + 6, (py + ty) / 2 - 8);
+        ctx.fillText(tr("sum.missing"), (px + tx) / 2 + 6, (py + ty) / 2 - 8);
       }
     }
     ctx.fillStyle = th.ink;
@@ -189,10 +193,8 @@ export function createSum(report, lab, motions) {
     const zero = GROUPS.a.terms.filter((n) => norm(e.vec[n]) < 1e-9 * Math.max(1, norm(e.vec.a_abs)));
     const missing = GROUPS.a.terms.filter((n) => !enabled.has(n) && !zero.includes(n));
     const parts = [];
-    const symbol = (n) => (VECTOR_INFO[n].sub ? `<i>${VECTOR_INFO[n].label}</i><sub>${VECTOR_INFO[n].sub}</sub>` : `<i>${VECTOR_INFO[n].label}</i>`);
-    if (zero.length) parts.push(`Neste instante ${zero.map(symbol).join(" e ")} ${zero.length > 1 ? "são nulas" : "é nula"}.`);
-    if (missing.length) parts.push("Com parcelas desligadas, a soma não fecha: o tracejado é exatamente o que elas valem.");
-    else parts.push("Com todas as parcelas, o polígono fecha na aceleração absoluta.");
+    if (zero.length) parts.push(tr(zero.length > 1 ? "sum.zeroMany" : "sum.zeroOne", { list: zero.map(vectorSymbol).join(tr("sum.and")) }));
+    parts.push(tr(missing.length ? "sum.open" : "sum.closed"));
     note.innerHTML = parts.join(" ");
   }
 
@@ -224,8 +226,17 @@ export function createSum(report, lab, motions) {
   }
 
   const caseRoot = root.querySelector("[data-sum-case]");
-  caseRoot.innerHTML = report.casos.map((c) => `<button type="button" data-value="${c.numero}" aria-pressed="${String(c.numero) === source}">${c.titulo}</button>`).join("")
-    + `<button type="button" data-value="lab" aria-pressed="false">Do laboratório</button>`;
+  const renderText = () => {
+    caseButtons(caseRoot, report, source, true);
+    titles.v.textContent = tr("sum.velocity");
+    titles.a.textContent = tr("sum.acceleration");
+    for (const name of Object.keys(descs)) descs[name].textContent = vectorDesc(name);
+  };
+  renderText();
+  onLangChange(() => {
+    renderText();
+    redraw();
+  });
   segmented(caseRoot, (value) => {
     setSource(value);
     build();

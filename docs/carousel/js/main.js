@@ -4,11 +4,13 @@ import { createLab } from "./lab.js";
 import { createSum } from "./sum.js";
 import { createCoriolis } from "./coriolis.js";
 import { createChecks } from "./checks.js";
-import { invalidateTheme, theme } from "./ui.js";
+import { invalidateTheme, segmented, theme } from "./ui.js";
+import { applyStatic, lang, onLangChange, setLang, t } from "./i18n.js";
 
 function setupTheme() {
   const toggle = document.querySelector("[data-theme-toggle]");
-  const label = () => (toggle.textContent = theme().dark ? "Tema claro" : "Tema escuro");
+  const label = () => (toggle.textContent = t(theme().dark ? "theme.toLight" : "theme.toDark"));
+  onLangChange(label);
   toggle.addEventListener("click", () => {
     const next = theme().dark ? "light" : "dark";
     document.documentElement.dataset.theme = next;
@@ -28,6 +30,8 @@ function setupTheme() {
 }
 
 async function main() {
+  applyStatic();
+  segmented(document.querySelector("[data-lang-toggle]"), (value) => value !== lang() && setLang(value));
   setupTheme();
   const report = await fetch("data/report.json").then((response) => response.json());
   const motions = Object.fromEntries(report.casos.map((c) => [String(c.numero), createMotion({ ...c.params })]));

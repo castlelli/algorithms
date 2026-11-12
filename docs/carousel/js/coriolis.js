@@ -4,6 +4,8 @@
 import { integrateGroundFrame, norm, state } from "./model.js";
 import { drawScene, prepare } from "./scene.js";
 import { crisp, fmt, reducedMotion, segmented, theme, whenVisible } from "./ui.js";
+import { caseButtons } from "./lab.js";
+import { onLangChange, t as tr } from "./i18n.js";
 
 const SERIES = [
   ["a_rel", "a_rel"],
@@ -25,6 +27,7 @@ export function createCoriolis(report, lab, motions) {
   let series = null;
   let t = 0;
   let hover = null;
+  let stats = null;
   let raf = 0;
 
   const scene = (frame) => (ctx, w, h) => {
@@ -173,12 +176,17 @@ export function createCoriolis(report, lab, motions) {
     const n = ghost.steps;
     const end = state(motion, motion.tf).pos;
     const drift = Math.hypot(ghost.points[2 * n] - end[0], ghost.points[2 * n + 1] - end[1]);
-    tiles.drift.textContent = `${fmt(drift, 2)} m`;
-    tiles.max.textContent = `${fmt(maxCor, 3)} m/s²`;
-    tiles["max-note"].textContent = `em t = ${fmt(maxAt, 2)} s`;
-    tiles.share.textContent = shareN ? `${fmt((100 * shareSum) / shareN, 0)} %` : "–";
+    stats = { drift, maxCor, maxAt, share: shareN ? (100 * shareSum) / shareN : NaN };
+    renderTiles();
     t = motion.tf;
     redrawAll();
+  }
+
+  function renderTiles() {
+    tiles.drift.textContent = `${fmt(stats.drift, 2)} m`;
+    tiles.max.textContent = `${fmt(stats.maxCor, 3)} m/s²`;
+    tiles["max-note"].textContent = tr("cor.maxAt", { t: fmt(stats.maxAt, 2) });
+    tiles.share.textContent = Number.isFinite(stats.share) ? `${fmt(stats.share, 0)} %` : "–";
   }
 
   function play() {
@@ -201,8 +209,11 @@ export function createCoriolis(report, lab, motions) {
   }
 
   const caseRoot = root.querySelector("[data-cor-case]");
-  caseRoot.innerHTML = report.casos.map((c) => `<button type="button" data-value="${c.numero}" aria-pressed="${String(c.numero) === source}">${c.titulo}</button>`).join("")
-    + `<button type="button" data-value="lab" aria-pressed="false">Do laboratório</button>`;
+  caseButtons(caseRoot, report, source, true);
+  onLangChange(() => {
+    caseButtons(caseRoot, report, source, true);
+    renderTiles();
+  });
   segmented(caseRoot, (value) => {
     setSource(value);
     play();

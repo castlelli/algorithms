@@ -1,4 +1,6 @@
-// Shared helpers: theme tokens, pt-BR numbers, crisp canvases, arrows and KaTeX.
+// Shared helpers: theme tokens, localized numbers, crisp canvases, arrows and KaTeX.
+
+import { decimal } from "./i18n.js";
 
 const MINUS = "−";
 let cached = null;
@@ -37,7 +39,10 @@ export function invalidateTheme() {
   document.dispatchEvent(new Event("themechange"));
 }
 
-export const onThemeChange = (callback) => document.addEventListener("themechange", callback);
+export const onThemeChange = (callback) => {
+  document.addEventListener("themechange", callback);
+  document.addEventListener("langchange", callback);
+};
 
 export const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -47,12 +52,12 @@ export function withAlpha(hex, alpha) {
 }
 
 // ------------------------------------------------------------------------------- numbers
-/** Fixed decimals, decimal comma and typographic minus; −0 becomes 0. */
+/** Fixed decimals, the page's decimal separator and a typographic minus; −0 becomes 0. */
 export function fmt(value, digits = 3) {
   if (!Number.isFinite(value)) return "–";
   const fixed = Math.abs(value).toFixed(digits);
   const negative = value < 0 && Number(fixed) !== 0;
-  return (negative ? MINUS : "") + fixed.replace(".", ",");
+  return (negative ? MINUS : "") + fixed.replace(".", decimal());
 }
 
 /** Significant figures, like formatacao.num (keeps trailing zeros). */
@@ -186,15 +191,19 @@ export function texMixed(element, source) {
 }
 
 // ------------------------------------------------------------------------------ controls
-/** Segmented control: buttons with data-value inside root; calls onChange(value). */
+/** Segmented control: buttons with data-value inside root; calls onChange(value).
+ *  Clicks are delegated, so the buttons can be re-rendered (e.g. on a language change). */
 export function segmented(root, onChange) {
-  const buttons = [...root.querySelectorAll("button")];
+  const buttons = () => [...root.querySelectorAll("button")];
   const set = (value, fire = true) => {
-    for (const b of buttons) b.setAttribute("aria-pressed", String(b.dataset.value === value));
+    for (const b of buttons()) b.setAttribute("aria-pressed", String(b.dataset.value === value));
     if (fire) onChange(value);
   };
-  for (const b of buttons) b.addEventListener("click", () => set(b.dataset.value));
-  return { set, value: () => buttons.find((b) => b.getAttribute("aria-pressed") === "true")?.dataset.value };
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-value]");
+    if (button && root.contains(button)) set(button.dataset.value);
+  });
+  return { set, value: () => buttons().find((b) => b.getAttribute("aria-pressed") === "true")?.dataset.value };
 }
 
 export function setFill(slider) {

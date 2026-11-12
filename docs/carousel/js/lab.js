@@ -2,40 +2,45 @@
 // carousel, with the report's alternating arrows, live readouts and the full vector table.
 
 import { toLatex } from "./expr.js";
+import { localLatex, onLangChange, t as tr } from "./i18n.js";
 import { ACCELERATIONS, TABLE_ROWS, VELOCITIES, createMotion, norm } from "./model.js";
 import { drawScene, prepare } from "./scene.js";
 import { crisp, fmt, fmtSig, reducedMotion, segmented, setFill, tex, whenVisible } from "./ui.js";
 
-export const CASE_NOTES = {
-  1: "Referência que se confere à mão: α = 0 e v̇ = 0, então a aceleração relativa e a parcela tangencial somem. |<i>a</i><sub>cor</sub>| = 2<i>ωv</i> fica constante e <i>t</i><sub>f</sub> = <i>R</i>/<i>v</i>.",
-  2: "O carrossel acelera com α constante: surge a parcela tangencial α∧OF da aceleração de arrastamento. A centrípeta cresce com ω² enquanto r diminui.",
-  3: "ω troca de sinal em t = π/0,7 ≈ 4,49 s: o carrossel para e passa a girar no sentido horário. Com v variável, todas as parcelas são não nulas.",
-  custom: "Caso personalizado. As leis r(t) e φ(t) saem da integração numérica feita aqui, e α e v̇ da derivada exata das expressões digitadas.",
-};
-
 export const VECTOR_INFO = {
-  v_rel: { label: "v", sub: "rel", desc: "relativa" },
-  v_arr: { label: "v", sub: "arr", desc: "de arrastamento" },
-  v_abs: { label: "v", sub: "abs", desc: "absoluta" },
-  a_rel: { label: "a", sub: "rel", desc: "relativa" },
-  a_arr: { label: "a", sub: "arr", desc: "de arrastamento" },
-  a_arr_t: { label: "α∧OF", sub: "", desc: "parcela tangencial" },
-  a_arr_n: { label: "ω∧(ω∧OF)", sub: "", desc: "parcela centrípeta" },
-  a_cor: { label: "a", sub: "cor", desc: "de Coriolis" },
-  a_abs: { label: "a", sub: "abs", desc: "absoluta" },
+  v_rel: { label: "v", sub: "rel" },
+  v_arr: { label: "v", sub: "arr" },
+  v_abs: { label: "v", sub: "abs" },
+  a_rel: { label: "a", sub: "rel" },
+  a_arr: { label: "a", sub: "arr" },
+  a_arr_t: { label: "α∧OF", sub: "" },
+  a_arr_n: { label: "ω∧(ω∧OF)", sub: "" },
+  a_cor: { label: "a", sub: "cor" },
+  a_abs: { label: "a", sub: "abs" },
 };
 
-export function vectorName(name) {
+export const vectorDesc = (name) => tr(`vec.${name}`);
+
+export function vectorSymbol(name) {
   const info = VECTOR_INFO[name];
-  const symbol = info.sub ? `<i>${info.label}</i><sub>${info.sub}</sub>` : `<i>${info.label}</i>`;
-  const color = `var(--${name.replaceAll("_", "-")})`;
-  return `<span class="vec-name"><span class="arrow-swatch" style="color: ${color}" aria-hidden="true"></span><span>${symbol}</span></span>`;
+  return info.sub ? `<i>${info.label}</i><sub>${info.sub}</sub>` : `<i>${info.label}</i>`;
 }
 
-const FRAME_NOTES = {
-  ground: "Visto do chão, a formiga descreve uma espiral: é a trajetória absoluta.",
-  carousel: "Visto do carrossel, a formiga anda em linha reta até o centro e é o chão que gira. Quem anda no carrossel mede <i>v</i><sub>rel</sub> e <i>a</i><sub>rel</sub>; as outras setas ficam apagadas.",
-};
+export function vectorName(name) {
+  const color = `var(--${name.replaceAll("_", "-")})`;
+  return `<span class="vec-name"><span class="arrow-swatch" style="color: ${color}" aria-hidden="true"></span><span>${vectorSymbol(name)}</span></span>`;
+}
+
+/** Case title and short label, translated (the report's own text is Portuguese). */
+export const caseTitle = (entry) => tr("case.title", { n: entry.numero });
+export const caseLabel = (entry) => tr(`case.label.${entry.numero}`);
+
+/** Fills a segmented control with the report's cases (and optionally "from the lab"). */
+export function caseButtons(root, report, selected, withLab) {
+  const value = root.querySelector('[aria-pressed="true"]')?.dataset.value ?? selected;
+  root.innerHTML = report.casos.map((c) => `<button type="button" data-value="${c.numero}" aria-pressed="${String(c.numero) === value}">${caseTitle(c)}</button>`).join("")
+    + (withLab ? `<button type="button" data-value="lab" aria-pressed="${value === "lab"}">${tr("case.fromLab")}</button>` : "");
+}
 
 const parseNumber = (text) => String(text).trim().replace(",", ".");
 
@@ -58,6 +63,7 @@ export function createLab(report) {
 
   let motion = null;
   let prep = null;
+  let entry = null; // the report case when the inputs match one
   let caseKey = null;
   let t = 0;
   let playing = false;
@@ -69,16 +75,23 @@ export function createLab(report) {
   let lastTable = 0;
 
   // ---- case chips
-  const chips = [...report.casos.map((c) => ({ key: String(c.numero), title: c.titulo, label: c.rotulo })),
-    { key: "custom", title: "Personalizado", label: "suas funções ω(t) e v(t)" }];
-  for (const chip of chips) {
+  const chips = [...report.casos.map((c) => String(c.numero)), "custom"];
+  for (const key of chips) {
     const button = document.createElement("button");
     button.type = "button";
-    button.dataset.case = chip.key;
+    button.dataset.case = key;
     button.setAttribute("aria-pressed", "false");
-    button.innerHTML = `<strong>${chip.title}</strong><span>${chip.label}</span>`;
-    button.addEventListener("click", () => (chip.key === "custom" ? selectCustom() : selectCase(chip.key)));
+    button.addEventListener("click", () => (key === "custom" ? selectCustom() : selectCase(key)));
     chipsRoot.append(button);
+  }
+  function renderChips() {
+    for (const button of chipsRoot.querySelectorAll("button")) {
+      const key = button.dataset.case;
+      const c = report.casos.find((x) => String(x.numero) === key);
+      const title = c ? caseTitle(c) : tr("lab.custom");
+      const label = c ? caseLabel(c) : tr("lab.customLabel");
+      button.innerHTML = `<strong>${title}</strong><span>${label}</span>`;
+    }
   }
   const markChip = (key) => {
     for (const b of chipsRoot.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.case === key));
@@ -99,15 +112,19 @@ export function createLab(report) {
 
   // ---- vector table
   const rows = {};
+  const descs = {};
   for (const name of TABLE_ROWS) {
-    const tr = document.createElement("tr");
-    if (name === "a_arr_t" || name === "a_arr_n") tr.className = "sub";
-    if (name.endsWith("abs")) tr.classList.add("total");
-    const info = VECTOR_INFO[name];
-    tr.innerHTML = `<td>${vectorName(name)} <span class="vec-desc">${info.desc}</span></td><td></td><td></td><td></td><td></td><td></td>`;
-    rows[name] = [...tr.querySelectorAll("td")].slice(1);
-    tableBody.append(tr);
+    const tr2 = document.createElement("tr");
+    if (name === "a_arr_t" || name === "a_arr_n") tr2.className = "sub";
+    if (name.endsWith("abs")) tr2.classList.add("total");
+    tr2.innerHTML = `<td>${vectorName(name)} <span class="vec-desc"></span></td><td></td><td></td><td></td><td></td><td></td>`;
+    rows[name] = [...tr2.querySelectorAll("td")].slice(1);
+    descs[name] = tr2.querySelector(".vec-desc");
+    tableBody.append(tr2);
   }
+  const renderDescs = () => {
+    for (const name of TABLE_ROWS) descs[name].textContent = vectorDesc(name);
+  };
 
   const view = crisp(root.querySelector("#lab-scene"), (ctx, w, h) => {
     if (!prep) return;
@@ -116,7 +133,7 @@ export function createLab(report) {
     const vectors = shown === "vel" ? VELOCITIES : ACCELERATIONS;
     const faded = frame === "carousel" ? vectors.filter((n) => !n.endsWith("rel")) : [];
     drawScene(ctx, w, h, prep, t, { frame, vectors, faded, labels: w > 300 });
-    badge.textContent = shown === "vel" ? "VELOCIDADES" : "ACELERAÇÕES";
+    badge.textContent = tr(shown === "vel" ? "lab.badgeVel" : "lab.badgeAcc");
     badge.dataset.group = shown;
     const now = performance.now();
     if (now - lastTable > 80 || !playing) {
@@ -128,7 +145,7 @@ export function createLab(report) {
   function updateNumbers(shown) {
     const e = motion.state(t);
     out.t.textContent = fmt(t, 3);
-    out.tf.textContent = fmt(motion.tf, 3) + (motion.arrived ? "" : " (não chega)");
+    out.tf.textContent = fmt(motion.tf, 3) + (motion.arrived ? "" : tr("lab.noArrival"));
     out.r.textContent = fmt(e.r, 4);
     out.phi.textContent = fmt(e.phi, 4);
     out.omega.textContent = fmt(e.omega, 4);
@@ -147,12 +164,12 @@ export function createLab(report) {
       const isVel = name.startsWith("v");
       cellsOf[0].parentElement.classList.toggle("dim", (shown === "vel") !== isVel);
     }
-    timeLabel.textContent = `${fmt(t, 2)} s de ${fmt(motion.tf, 2)} s`;
+    timeLabel.textContent = tr("lab.timeOf", { t: fmt(t, 2), tf: fmt(motion.tf, 2) });
     slider.value = String(Math.round((t / motion.tf) * 1000));
     setFill(slider);
   }
 
-  function renderLaws(entry) {
+  function renderLaws() {
     laws.replaceChildren();
     const add = (latex, cls = "law") => {
       const div = document.createElement("div");
@@ -161,13 +178,13 @@ export function createLab(report) {
       laws.append(div);
     };
     const m = motion;
-    const omega = entry ? entry.latex.omega : toLatex(m.omegaTree);
-    const v = entry ? entry.latex.v : toLatex(m.vTree);
+    const omega = entry ? localLatex(entry.latex.omega) : toLatex(m.omegaTree);
+    const v = entry ? localLatex(entry.latex.v) : toLatex(m.vTree);
     add(`\\omega(t) = ${omega}\\ \\mathrm{rad/s}`);
     add(`v(t) = ${v}\\ \\mathrm{m/s}`);
     if (entry?.latex.r) {
-      add(`r(t) = ${entry.latex.r}\\ \\mathrm{m}`);
-      add(`\\varphi(t) = ${entry.latex.phi}\\ \\mathrm{rad}`);
+      add(`r(t) = ${localLatex(entry.latex.r)}\\ \\mathrm{m}`);
+      add(`\\varphi(t) = ${localLatex(entry.latex.phi)}\\ \\mathrm{rad}`);
     } else {
       add(`r(t) = R - \\textstyle\\int_0^t v\\,d\\tau`);
       add(`\\varphi(t) = \\varphi_0 + \\textstyle\\int_0^t \\omega\\,d\\tau`);
@@ -175,31 +192,34 @@ export function createLab(report) {
     add(`t_f = ${fmtSig(m.tf, 5).replace(",", "{,}").replace("−", "-")}\\ \\mathrm{s}`);
     const small = document.createElement("p");
     small.className = "law-note";
-    small.textContent = entry ? "Leis exatas deduzidas pelo sympy no relatório." : "Integração numérica no navegador (sem forma fechada).";
+    small.textContent = tr(entry ? "lab.lawsExact" : "lab.lawsNumeric");
     laws.append(small);
   }
 
-  function apply(params, entry) {
+  function renderScale() {
+    const s = motion.scales;
+    scaleNote.textContent = tr("lab.scale", { v: fmtSig(motion.R / s.vel, 3), a: fmtSig(motion.R / s.acc, 3) });
+  }
+
+  function apply(params, preset) {
     try {
       motion = createMotion(params);
     } catch (problem) {
       error.textContent = problem.message;
-      for (const input of form.elements) input.setAttribute("aria-invalid", String(problem.message.includes(labelOf(input.name))));
+      for (const input of form.elements) input.setAttribute("aria-invalid", String(input.name === problem.field));
       return false;
     }
     error.textContent = "";
     for (const input of form.elements) input.setAttribute("aria-invalid", "false");
+    entry = preset ?? null;
     prep = prepare(motion);
     t = 0;
-    const s = motion.scales;
-    scaleNote.textContent = `seta de 1 R ≙ ${fmtSig(motion.R / s.vel, 3)} m/s\nseta de 1 R ≙ ${fmtSig(motion.R / s.acc, 3)} m/s²`;
-    renderLaws(entry);
+    renderScale();
+    renderLaws();
     view.redraw();
     for (const listener of listeners) listener();
     return true;
   }
-
-  const labelOf = (name) => ({ omega: "ω", v: "v(t)", R: "R ", phi0: "φ₀", dt: "Δt" })[name];
 
   function fill(params) {
     form.elements.omega.value = params.omega;
@@ -209,41 +229,48 @@ export function createLab(report) {
     form.elements.dt.value = String(params.dt);
   }
 
+  const renderNote = () => (note.innerHTML = tr(`case.note.${caseKey}`));
+
   function selectCase(key) {
-    const entry = report.casos.find((c) => String(c.numero) === key);
+    const preset = report.casos.find((c) => String(c.numero) === key);
     caseKey = key;
     markChip(key);
-    note.innerHTML = CASE_NOTES[key];
-    fill(entry.params);
-    apply({ ...entry.params }, entry);
+    renderNote();
+    fill(preset.params);
+    apply({ ...preset.params }, preset);
     setPlaying(!reducedMotion() && visible);
   }
 
   function selectCustom() {
     caseKey = "custom";
     markChip("custom");
-    note.innerHTML = CASE_NOTES.custom;
+    renderNote();
     form.elements.omega.focus();
     form.elements.omega.select();
+  }
+
+  function readForm() {
+    const params = {
+      omega: form.elements.omega.value,
+      v: form.elements.v.value,
+      R: parseNumber(form.elements.R.value),
+      phi0: parseNumber(form.elements.phi0.value),
+      dt: parseNumber(form.elements.dt.value),
+    };
+    const preset = report.casos.find((c) => c.params.omega === params.omega && c.params.v === params.v
+      && Number(c.params.R) === Number(params.R) && c.params.phi0 === params.phi0 && c.params.dt === Number(params.dt));
+    return { params, preset };
   }
 
   let debounce = 0;
   form.addEventListener("input", () => {
     clearTimeout(debounce);
     debounce = setTimeout(() => {
-      const params = {
-        omega: form.elements.omega.value,
-        v: form.elements.v.value,
-        R: parseNumber(form.elements.R.value),
-        phi0: parseNumber(form.elements.phi0.value),
-        dt: parseNumber(form.elements.dt.value),
-      };
-      const preset = report.casos.find((c) => c.params.omega === params.omega && c.params.v === params.v
-        && Number(c.params.R) === Number(params.R) && c.params.phi0 === params.phi0 && c.params.dt === Number(params.dt));
+      const { params, preset } = readForm();
       if (apply(params, preset)) {
         caseKey = preset ? String(preset.numero) : "custom";
         markChip(caseKey);
-        note.innerHTML = CASE_NOTES[caseKey];
+        renderNote();
         setPlaying(!reducedMotion());
       }
     }, 280);
@@ -251,10 +278,13 @@ export function createLab(report) {
   form.addEventListener("submit", (event) => event.preventDefault());
 
   // ---- transport
+  function renderPlay() {
+    playButton.textContent = tr(playing ? "lab.pause" : t >= motion.tf ? "lab.replay" : "lab.play");
+    playButton.setAttribute("aria-label", playButton.textContent);
+  }
   function setPlaying(on) {
     playing = on;
-    playButton.textContent = on ? "Pausar" : t >= motion.tf ? "Repetir" : "Reproduzir";
-    playButton.setAttribute("aria-label", playButton.textContent);
+    renderPlay();
     if (on && !raf) {
       previous = 0;
       raf = requestAnimationFrame(tick);
@@ -289,17 +319,17 @@ export function createLab(report) {
     setPlaying(false);
     view.redraw();
   });
+  const renderFrameNote = () => (frameNote.innerHTML = tr(frame === "ground" ? "lab.frameGround" : "lab.frameCarousel"));
   segmented(root.querySelector("[data-lab-speed]"), (value) => (speed = Number(value)));
   segmented(root.querySelector("[data-lab-frame]"), (value) => {
     frame = value;
-    frameNote.innerHTML = FRAME_NOTES[value];
+    renderFrameNote();
     view.redraw();
   });
   segmented(root.querySelector("[data-lab-vectors]"), (value) => {
     mode = value;
     view.redraw();
   });
-  frameNote.innerHTML = FRAME_NOTES.ground;
 
   whenVisible(root.querySelector("#lab-scene"), (on) => {
     const first = on && !visible && previous === 0 && t === 0;
@@ -307,6 +337,28 @@ export function createLab(report) {
     if (on && (playing || first) && !reducedMotion()) setPlaying(true);
   });
 
+  onLangChange(() => {
+    renderChips();
+    renderDescs();
+    renderNote();
+    renderFrameNote();
+    renderPlay();
+    if (error.textContent) {
+      // Re-run the inputs so the error message comes out in the new language.
+      const { params } = readForm();
+      try {
+        createMotion(params);
+      } catch (problem) {
+        error.textContent = problem.message;
+      }
+    }
+    renderScale();
+    renderLaws();
+  });
+
+  renderChips();
+  renderDescs();
+  renderFrameNote();
   selectCase("1");
 
   return {

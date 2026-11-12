@@ -3,48 +3,65 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Carrossel e formiga | PME3100</title>
-  <meta name="description" content="Movimento relativo ao vivo: uma formiga anda até o centro de um carrossel que gira. Velocidades, acelerações e Coriolis calculados no navegador.">
+  <title>Carrossel e formiga</title>
+  <meta name="description" content="Movimento relativo ao vivo: uma formiga anda até o centro de um carrossel que gira. Velocidades, acelerações e Coriolis calculados no navegador." data-i18n-content="doc.description">
   <meta name="color-scheme" content="light dark">
-  <meta property="og:title" content="Carrossel e formiga">
-  <meta property="og:description" content="Cinemática do movimento relativo calculada no navegador: arrastamento, Coriolis e a soma vetorial. PME3100, Poli-USP.">
+  <meta property="og:title" content="Carrossel e formiga · Carousel and ant">
+  <meta property="og:description" content="Cinemática do movimento relativo calculada no navegador: arrastamento, Coriolis e a soma vetorial." data-i18n-content="og.description">
+  <link rel="alternate" hreflang="pt-BR" href="https://castlelli.github.io/algorithms/carousel/?lang=pt">
+  <link rel="alternate" hreflang="en" href="https://castlelli.github.io/algorithms/carousel/?lang=en">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23121514'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23e8e4da' stroke-width='2'/%3E%3Cpath d='M16 16 L24 9' stroke='%23e8e4da' stroke-width='1.6' stroke-dasharray='2.5 2'/%3E%3Ccircle cx='22' cy='10.8' r='2.6' fill='%23f07a2e'/%3E%3C/svg%3E">
   <link rel="preload" href="fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
   <script>
-    // Applies a saved theme before first paint.
+    // Applies the saved theme before first paint, and hides the Portuguese markup for a moment
+    // when the page is about to switch to English (released by js/i18n.js, or after 1.5 s).
     try { const saved = localStorage.getItem("theme"); if (saved) document.documentElement.dataset.theme = saved; } catch (error) {}
+    (function () {
+      let lang = new URLSearchParams(location.search).get("lang");
+      try { if (lang !== "en" && lang !== "pt") lang = localStorage.getItem("lang"); } catch (error) {}
+      if (lang !== "en" && lang !== "pt") lang = (navigator.language || "pt").toLowerCase().startsWith("pt") ? "pt" : "en";
+      if (lang === "en") {
+        document.documentElement.lang = "en";
+        document.documentElement.classList.add("i18n-wait");
+        setTimeout(function () { document.documentElement.classList.remove("i18n-wait"); }, 1500);
+      }
+    })();
   </script>
 </head>
 <body>
-  <a class="skip" href="#lab">Ir para o laboratório</a>
+  <a class="skip" href="#lab" data-i18n="skip">Ir para o laboratório</a>
 
   <header class="nav">
-    <a class="back" href="https://castlelli.github.io/pt/#work" aria-label="Voltar ao portfólio de Vinicius Castelli"><span aria-hidden="true">←</span><span class="back-label">Portfólio</span></a>
-    <a class="brand" href="#topo"><em>Carrossel</em> <span>PME3100</span></a>
-    <nav aria-label="Seções">
-      <a href="#lab"><span>01</span>Laboratório</a>
-      <a href="#soma"><span>02</span>Soma vetorial</a>
-      <a href="#coriolis"><span>03</span>Coriolis</a>
-      <a href="#conferencia"><span>04</span>Conferência</a>
+    <a class="back" href="https://castlelli.github.io/pt/#work" data-i18n-href data-href-pt="https://castlelli.github.io/pt/#work" data-href-en="https://castlelli.github.io/#work" aria-label="Voltar ao portfólio de Vinicius Castelli" data-i18n-aria="nav.back"><span aria-hidden="true">←</span><span class="back-label" data-i18n="nav.backLabel">Portfólio</span></a>
+    <a class="brand" href="#topo" data-i18n="nav.brand"><em>Carrossel</em></a>
+    <nav aria-label="Seções" data-i18n-aria="nav.sections">
+      <a href="#lab" data-i18n="nav.lab"><span>01</span>Laboratório</a>
+      <a href="#soma" data-i18n="nav.sum"><span>02</span>Soma vetorial</a>
+      <a href="#coriolis" data-i18n="nav.coriolis"><span>03</span>Coriolis</a>
+      <a href="#conferencia" data-i18n="nav.check"><span>04</span>Conferência</a>
     </nav>
     <div class="nav-actions">
-      <a class="button ghost" href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-6/resultado/relatorio_todos.pdf">Relatório<span class="wide-only"> em PDF</span></a>
-      <button class="button ghost" type="button" data-theme-toggle aria-label="Alternar entre tema claro e escuro">Tema</button>
+      <a class="button ghost report" href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-6/resultado/relatorio_todos.pdf" data-i18n="nav.report">Relatório<span class="wide-only"> em PDF</span></a>
+      <div class="segmented small lang" data-lang-toggle role="group" aria-label="Idioma" data-i18n-aria="nav.lang">
+        <button type="button" data-value="pt" lang="pt-BR" aria-pressed="true">PT</button>
+        <button type="button" data-value="en" lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="button ghost" type="button" data-theme-toggle aria-label="Alternar entre tema claro e escuro" data-i18n-aria="theme.aria">Tema</button>
     </div>
   </header>
 
   <main>
     <section class="hero" id="topo">
       <div class="hero-text">
-        <p class="eyebrow">PME3100 Mecânica I · Optativa 6</p>
-        <h1>Uma formiga num <em>carrossel</em> que gira</h1>
-        <p class="lede">A formiga anda da borda até o centro enquanto o disco gira. Velocidades, acelerações e Coriolis, calculados ao vivo no seu navegador.</p>
+        <p class="eyebrow" data-i18n="hero.eyebrow">Mecânica I · Optativa 6</p>
+        <h1 data-i18n="hero.title">Uma formiga num <em>carrossel</em> que gira</h1>
+        <p class="lede" data-i18n="hero.lede">A formiga anda da borda até o centro enquanto o disco gira. Velocidades, acelerações e Coriolis, calculados ao vivo no seu navegador.</p>
         <div class="hero-actions">
-          <a class="button primary" href="#lab">Abrir o laboratório</a>
-          <a class="button" href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-6/resultado/relatorio_todos.pdf">Relatório em PDF</a>
+          <a class="button primary" href="#lab" data-i18n="hero.open">Abrir o laboratório</a>
+          <a class="button" href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-6/resultado/relatorio_todos.pdf" data-i18n="hero.report">Relatório em PDF</a>
         </div>
         <dl class="dials" aria-live="off">
           <div><dt>t</dt><dd data-hero="t">0</dd><span>s</span></div>
@@ -54,19 +71,19 @@
         </dl>
       </div>
       <figure class="hero-figure frame">
-        <canvas id="hero" aria-label="Vista de topo do caso 3: o carrossel gira, para e inverte o sentido enquanto a formiga anda até o centro"></canvas>
-        <figcaption>Caso 3, calculado agora. O carrossel para e inverte o sentido em t ≈ 4,49 s; a formiga desenha a sua trajetória absoluta.</figcaption>
+        <canvas id="hero" aria-label="Vista de topo do caso 3: o carrossel gira, para e inverte o sentido enquanto a formiga anda até o centro" data-i18n-aria="hero.aria"></canvas>
+        <figcaption data-i18n="hero.caption">Caso 3, calculado agora. O carrossel para e inverte o sentido em t ≈ 4,49 s; a formiga desenha a sua trajetória absoluta.</figcaption>
       </figure>
     </section>
 
     <section class="section" id="lab">
       <header class="section-head">
         <p class="index">01</p>
-        <h2>Laboratório</h2>
-        <p>Escolha ω(t) e v(t) e veja o movimento. A cada Δt as setas trocam de grupo, como no relatório: velocidades nos múltiplos pares de Δt, acelerações nos ímpares.</p>
+        <h2 data-i18n="lab.title">Laboratório</h2>
+        <p data-i18n="lab.lede">Escolha ω(t) e v(t) e veja o movimento. A cada Δt as setas trocam de grupo, como no relatório: velocidades nos múltiplos pares de Δt, acelerações nos ímpares.</p>
       </header>
 
-      <div class="chips" data-lab-cases role="group" aria-label="Casos"></div>
+      <div class="chips" data-lab-cases role="group" aria-label="Casos" data-i18n-aria="lab.cases"></div>
       <p class="case-note" data-lab-note></p>
 
       <div class="lab-grid">
@@ -79,36 +96,36 @@
             <label><span>Δt</span><input name="dt" type="text" inputmode="decimal"><em>s</em></label>
           </form>
           <p class="error" id="lab-error" data-lab-error role="alert"></p>
-          <p class="hint">Vale t, números, + − * / ^, pi, E e sin, cos, tan, exp, log, sqrt, abs… A multiplicação precisa de *: 2*t.</p>
+          <p class="hint" data-i18n="lab.hint">Vale t, números, + − * / ^, pi, E e sin, cos, tan, exp, log, sqrt, abs… A multiplicação precisa de *: 2*t.</p>
           <div class="laws" data-lab-laws></div>
         </aside>
 
         <div class="lab-stage">
           <div class="toolbar">
-            <div class="segmented" data-lab-frame role="group" aria-label="Referencial">
-              <button type="button" data-value="ground" aria-pressed="true">Visto do chão</button>
-              <button type="button" data-value="carousel" aria-pressed="false">Visto do carrossel</button>
+            <div class="segmented" data-lab-frame role="group" aria-label="Referencial" data-i18n-aria="lab.frame">
+              <button type="button" data-value="ground" aria-pressed="true" data-i18n="lab.ground">Visto do chão</button>
+              <button type="button" data-value="carousel" aria-pressed="false" data-i18n="lab.carousel">Visto do carrossel</button>
             </div>
-            <div class="segmented" data-lab-vectors role="group" aria-label="Vetores exibidos">
-              <button type="button" data-value="alt" aria-pressed="true">Alternar a cada Δt</button>
-              <button type="button" data-value="vel" aria-pressed="false">Velocidades</button>
-              <button type="button" data-value="acc" aria-pressed="false">Acelerações</button>
+            <div class="segmented" data-lab-vectors role="group" aria-label="Vetores exibidos" data-i18n-aria="lab.vectors">
+              <button type="button" data-value="alt" aria-pressed="true" data-i18n="lab.alt">Alternar a cada Δt</button>
+              <button type="button" data-value="vel" aria-pressed="false" data-i18n="lab.vel">Velocidades</button>
+              <button type="button" data-value="acc" aria-pressed="false" data-i18n="lab.acc">Acelerações</button>
             </div>
           </div>
           <figure class="panel frame stage">
-            <canvas id="lab-scene" aria-label="Vista de topo do carrossel, da formiga e dos vetores"></canvas>
+            <canvas id="lab-scene" aria-label="Vista de topo do carrossel, da formiga e dos vetores" data-i18n-aria="lab.sceneAria"></canvas>
             <span class="badge" data-lab-group></span>
             <span class="scale-note" data-lab-scale></span>
           </figure>
           <div class="transport">
-            <button class="button primary icon" type="button" data-lab-play aria-label="Pausar">Pausar</button>
-            <button class="button" type="button" data-lab-restart>Reiniciar</button>
+            <button class="button primary icon" type="button" data-lab-play>Pausar</button>
+            <button class="button" type="button" data-lab-restart data-i18n="lab.restart">Reiniciar</button>
             <div class="slider-block grow">
-              <label for="lab-time">Tempo <output data-lab-time-label>0 s</output></label>
+              <label for="lab-time"><span data-i18n="lab.time">Tempo</span> <output data-lab-time-label>0 s</output></label>
               <input id="lab-time" type="range" min="0" max="1000" step="1" value="0">
             </div>
-            <div class="segmented small" data-lab-speed role="group" aria-label="Velocidade da animação">
-              <button type="button" data-value="0.5" aria-pressed="false">0,5×</button>
+            <div class="segmented small" data-lab-speed role="group" aria-label="Velocidade da animação" data-i18n-aria="lab.speed">
+              <button type="button" data-value="0.5" aria-pressed="false">0.5×</button>
               <button type="button" data-value="1" aria-pressed="true">1×</button>
               <button type="button" data-value="2" aria-pressed="false">2×</button>
             </div>
@@ -121,8 +138,8 @@
         <dl class="readout" data-lab-readout></dl>
         <div class="table-wrap">
           <table class="vectors">
-            <caption>Velocidades e acelerações no instante t <span>componentes em m/s e m/s²</span></caption>
-            <thead><tr><th scope="col">Vetor</th><th scope="col">e<sub>r</sub></th><th scope="col">e<sub>φ</sub></th><th scope="col">i</th><th scope="col">j</th><th scope="col">Módulo</th></tr></thead>
+            <caption data-i18n="lab.tableCaption">Velocidades e acelerações no instante t <span>componentes em m/s e m/s²</span></caption>
+            <thead><tr><th scope="col" data-i18n="lab.vector">Vetor</th><th scope="col">e<sub>r</sub></th><th scope="col">e<sub>φ</sub></th><th scope="col">i</th><th scope="col">j</th><th scope="col" data-i18n="lab.magnitude">Módulo</th></tr></thead>
             <tbody data-lab-table></tbody>
           </table>
         </div>
@@ -132,25 +149,25 @@
     <section class="section" id="soma">
       <header class="section-head">
         <p class="index">02</p>
-        <h2>A soma vetorial, parcela por parcela</h2>
-        <p>Cada seta começa onde a anterior termina. Desligue uma parcela e a soma deixa de chegar à aceleração absoluta: o que falta aparece tracejado.</p>
+        <h2 data-i18n="sum.title">A soma vetorial, parcela por parcela</h2>
+        <p data-i18n="sum.lede">Cada seta começa onde a anterior termina. Desligue uma parcela e a soma deixa de chegar à aceleração absoluta: o que falta aparece tracejado.</p>
       </header>
       <div class="toolbar">
-        <div class="segmented" data-sum-case role="group" aria-label="Caso"></div>
-        <button class="button primary" type="button" data-sum-build>Montar a soma</button>
+        <div class="segmented" data-sum-case role="group" aria-label="Caso" data-i18n-aria="sum.case"></div>
+        <button class="button primary" type="button" data-sum-build data-i18n="sum.build">Montar a soma</button>
       </div>
       <div class="sum-grid">
         <figure class="panel frame square">
-          <figcaption>Velocidade <span>base polar: e<sub>r</sub> para a direita, e<sub>φ</sub> para cima</span></figcaption>
-          <canvas id="sum-v" aria-label="Soma das velocidades relativa e de arrastamento"></canvas>
+          <figcaption data-i18n="sum.velocityCaption">Velocidade <span>base polar: e<sub>r</sub> para a direita, e<sub>φ</sub> para cima</span></figcaption>
+          <canvas id="sum-v" aria-label="Soma das velocidades relativa e de arrastamento" data-i18n-aria="sum.vAria"></canvas>
         </figure>
         <figure class="panel frame square">
-          <figcaption>Aceleração <span>mesma base</span></figcaption>
-          <canvas id="sum-a" aria-label="Soma das acelerações relativa, tangencial, centrípeta e de Coriolis"></canvas>
+          <figcaption data-i18n="sum.accelerationCaption">Aceleração <span>mesma base</span></figcaption>
+          <canvas id="sum-a" aria-label="Soma das acelerações relativa, tangencial, centrípeta e de Coriolis" data-i18n-aria="sum.aAria"></canvas>
         </figure>
         <div class="sum-side">
           <div class="slider-block">
-            <label for="sum-time">Instante <output data-sum-time-label></output></label>
+            <label for="sum-time"><span data-i18n="sum.instant">Instante</span> <output data-sum-time-label></output></label>
             <input id="sum-time" type="range" min="0" max="1000" step="1" value="500">
           </div>
           <ul class="terms" data-sum-terms></ul>
@@ -162,61 +179,61 @@
     <section class="section" id="coriolis">
       <header class="section-head">
         <p class="index">03</p>
-        <h2>O que a aceleração de Coriolis faz</h2>
-        <p>Integramos a formiga duas vezes a partir do mesmo estado inicial: uma com todas as parcelas, outra sem a de Coriolis. Sem ela, a formiga não fica sobre a sua reta.</p>
+        <h2 data-i18n="cor.title">O que a aceleração de Coriolis faz</h2>
+        <p data-i18n="cor.lede">Integramos a formiga duas vezes a partir do mesmo estado inicial: uma com todas as parcelas, outra sem a de Coriolis. Sem ela, a formiga não fica sobre a sua reta.</p>
       </header>
       <div class="toolbar">
-        <div class="segmented" data-cor-case role="group" aria-label="Caso"></div>
-        <button class="button primary" type="button" data-cor-play>Soltar as duas formigas</button>
+        <div class="segmented" data-cor-case role="group" aria-label="Caso" data-i18n-aria="sum.case"></div>
+        <button class="button primary" type="button" data-cor-play data-i18n="cor.play">Soltar as duas formigas</button>
       </div>
       <div class="pair">
         <figure class="panel frame square">
-          <figcaption>Visto do chão</figcaption>
-          <canvas id="cor-ground" aria-label="Trajetórias com e sem Coriolis vistas do chão"></canvas>
+          <figcaption data-i18n="lab.ground">Visto do chão</figcaption>
+          <canvas id="cor-ground" aria-label="Trajetórias com e sem Coriolis vistas do chão" data-i18n-aria="cor.groundAria"></canvas>
         </figure>
         <figure class="panel frame square">
-          <figcaption>Visto do carrossel</figcaption>
-          <canvas id="cor-carousel" aria-label="Trajetórias com e sem Coriolis vistas de cima do carrossel"></canvas>
+          <figcaption data-i18n="lab.carousel">Visto do carrossel</figcaption>
+          <canvas id="cor-carousel" aria-label="Trajetórias com e sem Coriolis vistas de cima do carrossel" data-i18n-aria="cor.carouselAria"></canvas>
         </figure>
       </div>
       <ul class="legend">
-        <li><span class="swatch line"></span>Com todas as parcelas: a solução exata</li>
-        <li><span class="swatch dash"></span>Sem a parcela de Coriolis</li>
+        <li><span class="swatch line"></span><span data-i18n="cor.with">Com todas as parcelas: a solução exata</span></li>
+        <li><span class="swatch dash"></span><span data-i18n="cor.without">Sem a parcela de Coriolis</span></li>
       </ul>
       <dl class="tiles" data-cor-tiles>
-        <div><dt>Afastamento da reta ao fim</dt><dd data-cor="drift">–</dd><p>distância entre as duas formigas em t<sub>f</sub></p></div>
-        <div><dt>Maior |a<sub>cor</sub>|</dt><dd data-cor="max">–</dd><p data-cor="max-note"></p></div>
-        <div><dt>Coriolis na aceleração absoluta</dt><dd data-cor="share">–</dd><p>média de |a<sub>cor</sub>| / |a<sub>abs</sub>| no movimento</p></div>
+        <div><dt data-i18n="cor.drift">Afastamento da reta ao fim</dt><dd data-cor="drift">–</dd><p data-i18n="cor.driftNote">distância entre as duas formigas em t<sub>f</sub></p></div>
+        <div><dt data-i18n="cor.max">Maior |a<sub>cor</sub>|</dt><dd data-cor="max">–</dd><p data-cor="max-note"></p></div>
+        <div><dt data-i18n="cor.share">Coriolis na aceleração absoluta</dt><dd data-cor="share">–</dd><p data-i18n="cor.shareNote">média de |a<sub>cor</sub>| / |a<sub>abs</sub>| no movimento</p></div>
       </dl>
       <figure class="panel chart">
-        <figcaption>Módulos das parcelas da aceleração <span>passe o cursor para ler os valores</span></figcaption>
-        <canvas id="cor-chart" aria-label="Módulos das parcelas da aceleração ao longo do tempo"></canvas>
+        <figcaption data-i18n="cor.chart">Módulos das parcelas da aceleração <span>passe o cursor para ler os valores</span></figcaption>
+        <canvas id="cor-chart" aria-label="Módulos das parcelas da aceleração ao longo do tempo" data-i18n-aria="cor.chartAria"></canvas>
       </figure>
     </section>
 
     <section class="section" id="conferencia">
       <header class="section-head">
         <p class="index">04</p>
-        <h2>O navegador confere o relatório</h2>
-        <p>O relatório deduziu as leis com o sympy e verificou tudo em Python. Aqui o navegador refaz as mesmas contas com outro método (quadratura de Gauss–Legendre) e compara.</p>
+        <h2 data-i18n="check.title">O navegador confere o relatório</h2>
+        <p data-i18n="check.lede">O relatório deduziu as leis com o sympy e verificou tudo em Python. Aqui o navegador refaz as mesmas contas com outro método (quadratura de Gauss–Legendre) e compara.</p>
       </header>
       <div class="toolbar">
-        <div class="segmented" data-check-case role="group" aria-label="Caso"></div>
-        <button class="button primary" type="button" data-check-run>Recalcular agora</button>
+        <div class="segmented" data-check-case role="group" aria-label="Caso" data-i18n-aria="sum.case"></div>
+        <button class="button primary" type="button" data-check-run data-i18n="check.run">Recalcular agora</button>
         <span class="status" data-check-status role="status"></span>
       </div>
       <div class="check-grid">
         <div class="table-wrap">
           <table class="check">
-            <caption>Valores no instante dos itens (b) e (c)</caption>
-            <thead><tr><th scope="col">Grandeza</th><th scope="col">Relatório</th><th scope="col">Navegador</th><th scope="col">Diferença</th></tr></thead>
+            <caption data-i18n="check.valuesCaption">Valores no instante dos itens (b) e (c)</caption>
+            <thead><tr><th scope="col" data-i18n="check.quantity">Grandeza</th><th scope="col" data-i18n="check.report">Relatório</th><th scope="col" data-i18n="check.browser">Navegador</th><th scope="col" data-i18n="check.difference">Diferença</th></tr></thead>
             <tbody data-check-values></tbody>
           </table>
         </div>
         <div class="table-wrap">
           <table class="check">
-            <caption>Verificações da seção 7 do relatório</caption>
-            <thead><tr><th scope="col">Verificação</th><th scope="col">Relatório</th><th scope="col">Navegador</th><th scope="col">Tolerância</th></tr></thead>
+            <caption data-i18n="check.rowsCaption">Verificações da seção 7 do relatório</caption>
+            <thead><tr><th scope="col" data-i18n="check.check">Verificação</th><th scope="col" data-i18n="check.report">Relatório</th><th scope="col" data-i18n="check.browser">Navegador</th><th scope="col" data-i18n="check.tolerance">Tolerância</th></tr></thead>
             <tbody data-check-rows></tbody>
           </table>
         </div>
@@ -225,15 +242,15 @@
   </main>
 
   <footer class="footer">
-    <p>Vinicius Castelli, NUSP 17864509. PME3100 Mecânica I, Escola Politécnica da USP, 2026.</p>
+    <p data-i18n="footer.credit">Vinicius Castelli, NUSP 17864509. Mecânica I, Escola Politécnica da USP, 2026.</p>
     <p>
-      <a href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-6/resultado/relatorio_todos.pdf">Relatório em PDF</a>
-      <a href="https://github.com/castlelli/algorithms/tree/main/pme3100/optativa-6">Código em Python</a>
-      <a href="https://github.com/castlelli/algorithms/tree/main/docs/carousel">Código deste site</a>
+      <a href="https://github.com/castlelli/algorithms/blob/main/pme3100/optativa-6/resultado/relatorio_todos.pdf" data-i18n="footer.report">Relatório em PDF</a>
+      <a href="https://github.com/castlelli/algorithms/tree/main/pme3100/optativa-6" data-i18n="footer.python">Código em Python</a>
+      <a href="https://github.com/castlelli/algorithms/tree/main/docs/carousel" data-i18n="footer.site">Código deste site</a>
     </p>
   </footer>
 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-  <script type="module" src="js/main.js?v=1"></script>
+  <script type="module" src="js/main.js?v=2"></script>
 </body>
 </html>
