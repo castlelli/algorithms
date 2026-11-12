@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pixelsmith · free image tools in C</title>
+  <meta name="description" content="Free, open-source image tools written in C and running in your browser through WebAssembly: compress, resize, crop, rotate, adjust, filter, dither, compare. Nothing is uploaded.">
+  <meta name="color-scheme" content="dark light">
+  <meta property="og:title" content="Pixelsmith: free image tools in C">
+  <meta property="og:description" content="A DCT image codec and a full image toolkit, written in C, compiled to WebAssembly, running on your machine. Free and open source.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://castlelli.github.io/algorithms/pixelsmith/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%230d0b09'/%3E%3Cpath fill='%23ffb000' d='M5 0h1v1H5zM4 1h1v1H4zM6 1h1v1H6zM5 2h1v1H5z'/%3E%3Cpath fill='%23f3ead8' d='M0 3h7v1H0zM1 4h6v1H1zM3 5h2v1H3zM2 6h4v1H2zM1 7h6v1H1z'/%3E%3Cpath fill='%23ff6a1f' d='M0 3h2v1H0z'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/pixelify-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/silkscreen-bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="modulepreload" href="engine/pixelsmith.js">
+  <link rel="stylesheet" href="style.css?v=1">
+  <script>
+    // Applies the saved theme before first paint.
+    try { const saved = localStorage.getItem("pixelsmith-theme"); if (saved) document.documentElement.dataset.theme = saved; } catch (error) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#studio">Skip to the studio</a>
+
+  <header class="nav">
+    <a class="back" href="https://castlelli.github.io/#work" aria-label="Back to Vinicius Castelli's portfolio"><span aria-hidden="true">←</span><span class="back-label">Portfolio</span></a>
+    <a class="wordmark" href="#top" aria-label="Pixelsmith, back to top">
+      <svg class="logo" viewBox="0 0 8 8" aria-hidden="true" shape-rendering="crispEdges">
+        <path class="logo-spark" d="M5 0h1v1H5zM4 1h1v1H4zM6 1h1v1H6zM5 2h1v1H5z"/>
+        <path class="logo-anvil" d="M0 3h7v1H0zM1 4h6v1H1zM3 5h2v1H3zM2 6h4v1H2zM1 7h6v1H1z"/>
+        <path class="logo-horn" d="M0 3h2v1H0z"/>
+      </svg>
+      <span class="wordmark-text" data-glitch="PIXELSMITH">PIXELSMITH</span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#studio"><span>01</span>Studio</a>
+      <a href="#inside"><span>02</span>Inside a block</a>
+      <a href="#curve"><span>03</span>Quality</a>
+      <a href="#cli"><span>04</span>Command line</a>
+      <a href="#checks"><span>05</span>Verified</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="button ghost github" href="https://github.com/castlelli/algorithms/tree/main/pixelsmith"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span class="wide-only">Source</span></a>
+      <button class="button ghost" type="button" data-theme-toggle aria-label="Switch between dark and light theme">Light</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================================================ hero -->
+    <section class="hero" id="top">
+      <div class="hero-text">
+        <p class="eyebrow"><span class="pip"></span>Free · open source · runs on your machine</p>
+        <h1>Forge your <em>pixels</em>.</h1>
+        <p class="lede">An image toolkit written in C and compiled to WebAssembly. Compress with a codec built from the 8×8 DCT up, then resize, crop, adjust, filter, dither and compare. Your images never leave this tab.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#studio">Open the studio</a>
+          <a class="button" href="#inside">See how it works</a>
+        </div>
+        <ul class="hero-facts" aria-label="At a glance">
+          <li><strong data-fact="tools">10</strong><span>tools</span></li>
+          <li><strong>0</strong><span>bytes uploaded</span></li>
+          <li><strong data-fact="engine">–</strong><span>KB of C, as wasm</span></li>
+          <li><strong>MIT</strong><span>license</span></li>
+        </ul>
+      </div>
+      <figure class="hero-figure frame">
+        <div class="hero-stage">
+          <canvas id="hero" aria-label="A photo of two parrots being recompressed block by block as the quality changes"></canvas>
+          <div class="hero-badge" aria-hidden="true"><span>Q</span><b data-hero="quality">–</b></div>
+        </div>
+        <dl class="readout hero-readout" aria-live="off">
+          <div><dt>quality</dt><dd data-hero="q">–</dd></div>
+          <div><dt>size</dt><dd data-hero="size">–</dd></div>
+          <div><dt>ratio</dt><dd data-hero="ratio">–</dd></div>
+          <div><dt>PSNR</dt><dd data-hero="psnr">–</dd></div>
+        </dl>
+        <figcaption>Recompressed live in your browser by the C codec. Each 8×8 block flips as it is re-encoded at the new quality.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============================================================ studio -->
+    <section class="section studio-section" id="studio">
+      <header class="section-head">
+        <p class="kicker">01 · Studio</p>
+        <h2>Ten tools, one image, zero uploads</h2>
+        <p>Drop an image, pick a tool, tune it and see the result next to the original. Apply a step to keep it and chain the next one. Then export, or run the same steps on a whole batch of files.</p>
+      </header>
+
+      <div class="studio" data-studio>
+        <nav class="rail" aria-label="Tools" data-rail></nav>
+
+        <div class="stage-wrap">
+          <div class="stage-bar">
+            <div class="file-meta">
+              <span class="file-name" data-file-name>No image</span>
+              <span class="file-dims" data-file-dims></span>
+            </div>
+            <div class="segmented small" data-view role="group" aria-label="View">
+              <button type="button" data-value="split" aria-pressed="true">Split</button>
+              <button type="button" data-value="after" aria-pressed="false">Result</button>
+              <button type="button" data-value="before" aria-pressed="false">Before</button>
+              <button type="button" data-value="diff" aria-pressed="false">Difference</button>
+            </div>
+            <div class="zoom" role="group" aria-label="Zoom">
+              <button class="icon-button" type="button" data-zoom="out" aria-label="Zoom out">−</button>
+              <button class="zoom-level" type="button" data-zoom="fit" aria-label="Fit to view">Fit</button>
+              <button class="icon-button" type="button" data-zoom="in" aria-label="Zoom in">+</button>
+            </div>
+          </div>
+
+          <div class="stage" data-stage tabindex="0" aria-label="Image preview. Drag the divider to compare; scroll or pinch to zoom; drag to pan.">
+            <canvas data-canvas></canvas>
+            <div class="split-handle" data-split hidden><span></span></div>
+            <div class="crop-box" data-crop-box hidden></div>
+            <div class="drop" data-drop>
+              <div class="drop-inner">
+                <svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M7 2h2v7h3l-4 4-4-4h3zM2 13h12v1H2z"/></svg>
+                <p class="drop-title">Drop an image here</p>
+                <p class="drop-sub">or paste it, or <label class="link">choose a file<input type="file" accept="image/*,.pxs,.txt,.tga,.psd,.pnm,.ppm,.pgm" data-open hidden></label></p>
+                <p class="drop-formats">PNG · JPEG · WebP · GIF · BMP · TGA · PSD · PXS · classic .txt</p>
+              </div>
+            </div>
+            <div class="busy" data-busy hidden><span></span><span></span><span></span></div>
+            <p class="stage-label before-label" data-label-before hidden>Before</p>
+            <p class="stage-label after-label" data-label-after hidden>After</p>
+          </div>
+
+          <div class="samples" data-samples>
+            <span class="samples-label">Samples</span>
+            <button type="button" class="sample" data-sample="parrots"><img src="samples/thumbs/parrots.jpg" alt="" width="48" height="32">Parrots</button>
+            <button type="button" class="sample" data-sample="hats"><img src="samples/thumbs/hats.jpg" alt="" width="48" height="32">Hats</button>
+            <button type="button" class="sample" data-sample="lighthouse"><img src="samples/thumbs/lighthouse.jpg" alt="" width="48" height="32">Lighthouse</button>
+            <button type="button" class="sample" data-sample="window"><img src="samples/thumbs/window.jpg" alt="" width="48" height="32">Window</button>
+            <button type="button" class="sample" data-sample="testcard"><img src="samples/thumbs/testcard.jpg" alt="" width="48" height="32">Test card</button>
+            <label class="button small open-button">Open…<input type="file" accept="image/*,.pxs,.txt,.tga,.psd,.pnm,.ppm,.pgm" data-open hidden></label>
+          </div>
+        </div>
+
+        <aside class="panel inspector" aria-label="Tool settings">
+          <header class="inspector-head">
+            <h3 data-tool-title>Compress</h3>
+            <p data-tool-blurb></p>
+          </header>
+          <div class="controls" data-controls></div>
+          <dl class="readout stats" data-stats></dl>
+          <div class="palette" data-palette hidden></div>
+          <canvas class="histogram" data-histogram hidden aria-label="Histogram of red, green, blue and luma"></canvas>
+          <div class="inspector-actions">
+            <button class="button primary" type="button" data-apply>Apply step</button>
+            <button class="button" type="button" data-download>Download</button>
+          </div>
+          <p class="status" data-status role="status"></p>
+        </aside>
+
+        <div class="pipeline" data-pipeline-wrap>
+          <span class="pipeline-label">Steps</span>
+          <ol class="pipeline-steps" data-pipeline><li class="pipeline-empty">Apply a step to start a pipeline.</li></ol>
+          <div class="pipeline-actions">
+            <button class="button small" type="button" data-undo disabled>Undo</button>
+            <button class="button small" type="button" data-reset disabled>Reset</button>
+            <label class="button small" data-batch-label>Batch…<input type="file" accept="image/*,.pxs,.txt" multiple data-batch hidden></label>
+          </div>
+        </div>
+      </div>
+      <p class="privacy"><span class="pip"></span>Everything runs locally in a Web Worker. Images are never sent anywhere; close the tab and they are gone.</p>
+    </section>
+
+    <!-- ============================================================ inside a block -->
+    <section class="section" id="inside">
+      <header class="section-head">
+        <p class="kicker">02 · Inside a block</p>
+        <h2>How 64 pixels become a few bits</h2>
+        <p>The codec cuts the image into 8×8 blocks and rewrites each one as a sum of 64 cosine patterns. Most of the weights are close to zero. Dividing them by a quality table rounds those to exactly zero, and long runs of zeros cost almost nothing to store. Hover the image to pick a block.</p>
+      </header>
+
+      <div class="inside">
+        <figure class="panel inside-source">
+          <figcaption>Luma, 8×8 grid <span>click to lock a block</span></figcaption>
+          <canvas data-inside-image class="pickable" aria-label="Grayscale image with an 8 by 8 grid; move over it to choose a block"></canvas>
+          <label class="slider-row">
+            <span>Quality</span>
+            <input type="range" min="1" max="100" value="50" data-inside-quality>
+            <output data-inside-quality-out>50</output>
+          </label>
+        </figure>
+
+        <ol class="steps-grid">
+          <li class="panel step">
+            <h3><span>1</span>Pixels <small>minus 128</small></h3>
+            <canvas data-grid="pixels" aria-label="The 64 pixel values of the block"></canvas>
+          </li>
+          <li class="panel step">
+            <h3><span>2</span>DCT <small>weights of 64 patterns</small></h3>
+            <canvas data-grid="coefficients" aria-label="DCT coefficients"></canvas>
+          </li>
+          <li class="panel step">
+            <h3><span>3</span>÷ table, rounded <small>the lossy step</small></h3>
+            <canvas data-grid="quantized" aria-label="Quantized coefficients"></canvas>
+          </li>
+          <li class="panel step">
+            <h3><span>4</span>Back again <small>what you see</small></h3>
+            <canvas data-grid="reconstructed" aria-label="Reconstructed block"></canvas>
+          </li>
+          <li class="panel step wide">
+            <h3><span>5</span>Zigzag and runs <small>low frequencies first, zeros counted not stored</small></h3>
+            <canvas data-zigzag aria-label="The 64 quantized coefficients in zigzag order"></canvas>
+            <p class="symbols" data-symbols></p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="basis">
+        <div class="basis-text">
+          <h3>The 64 patterns</h3>
+          <p>Every 8×8 block in every JPEG is a weighted sum of these. Switch patterns off and watch what the image loses: the top-left one is the average brightness, the rest add detail, finer toward the bottom right.</p>
+          <div class="segmented small" data-basis-preset role="group" aria-label="Pattern presets">
+            <button type="button" data-value="all" aria-pressed="true">All 64</button>
+            <button type="button" data-value="low" aria-pressed="false">Lowest 10</button>
+            <button type="button" data-value="dc" aria-pressed="false">Average only</button>
+            <button type="button" data-value="high" aria-pressed="false">Detail only</button>
+          </div>
+          <p class="basis-count" data-basis-count>64 of 64 patterns on</p>
+        </div>
+        <canvas class="basis-grid" data-basis aria-label="The 64 DCT basis patterns; click one to switch it off or on"></canvas>
+        <figure class="panel basis-result">
+          <canvas data-basis-result aria-label="The image rebuilt from the selected patterns only"></canvas>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============================================================ curve -->
+    <section class="section" id="curve">
+      <header class="section-head">
+        <p class="kicker">03 · Quality</p>
+        <h2>What each byte buys</h2>
+        <p>The same image encoded at every quality, measured against the original. PXS uses tables fitted to each image (optimized Huffman), so for the same error it usually needs fewer bytes than a baseline JPEG encoder with fixed tables. Computed now, on the image in the studio.</p>
+      </header>
+      <div class="curve-wrap">
+        <figure class="panel curve-figure">
+          <canvas data-curve aria-label="File size versus PSNR for PXS 4:2:0, PXS 4:4:4 and JPEG"></canvas>
+          <figcaption class="legend" data-curve-legend></figcaption>
+        </figure>
+        <div class="curve-side">
+          <dl class="readout curve-readout" data-curve-readout></dl>
+          <p class="note" data-curve-note>Hover the chart to read a point.</p>
+          <button class="button" type="button" data-curve-run>Measure the studio image</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ cli -->
+    <section class="section" id="cli">
+      <header class="section-head">
+        <p class="kicker">04 · Command line</p>
+        <h2>The same engine, in your terminal</h2>
+        <p>Pixelsmith is a small C11 library with no dependencies beyond the C library (image files are read and written with the public-domain stb headers, included). One binary, every tool.</p>
+      </header>
+      <div class="cli-grid">
+        <div class="panel code">
+          <header><span>Build</span><button class="copy" type="button" data-copy>Copy</button></header>
+<pre><code>git clone https://github.com/castlelli/algorithms
+cd algorithms/pixelsmith
+make          # builds ./pixelsmith
+make test     # unit tests, with sanitizers</code></pre>
+        </div>
+        <div class="panel code">
+          <header><span>Use</span><button class="copy" type="button" data-copy>Copy</button></header>
+<pre><code>pixelsmith compress photo.png photo.pxs -q 75
+pixelsmith decompress photo.pxs back.png
+pixelsmith resize photo.png small.png --fit 800x800
+pixelsmith quantize photo.png gif-like.png --colors 16 --dither bayer
+pixelsmith compare photo.png back.png --diff diff.png</code></pre>
+        </div>
+        <div class="panel code wide">
+          <header><span>Commands</span></header>
+          <dl class="commands">
+            <div><dt>compress</dt><dd>PXS (DCT + Huffman, 4:2:0 or 4:4:4, quality 1–100) or the classic text format</dd></div>
+            <div><dt>decompress</dt><dd>PXS or classic text back to any image format</dd></div>
+            <div><dt>convert</dt><dd>PNG, JPEG, BMP, TGA, PXS; reads GIF, PSD and PNM too</dd></div>
+            <div><dt>resize</dt><dd>nearest, bilinear, bicubic, Lanczos-3, in linear light</dd></div>
+            <div><dt>crop · rotate · flip</dt><dd>lossless quarter turns; any angle with transparent corners</dd></div>
+            <div><dt>adjust</dt><dd>brightness, contrast, gamma, saturation, hue, temperature</dd></div>
+            <div><dt>effect</dt><dd>grayscale, invert, sepia, threshold, auto levels, equalize, posterize</dd></div>
+            <div><dt>filter</dt><dd>Gaussian blur, unsharp mask, Sobel edges, emboss, median, pixelate</dd></div>
+            <div><dt>quantize</dt><dd>median-cut palette, Floyd–Steinberg or Bayer dithering</dd></div>
+            <div><dt>info · compare</dt><dd>histogram, PSNR, MSE, SSIM, difference map</dd></div>
+          </dl>
+        </div>
+        <div class="panel code wide format">
+          <header><span>The .pxs format</span></header>
+          <ol class="bytes">
+            <li style="--w: 4"><b>PXS1</b><span>magic</span></li>
+            <li style="--w: 4"><b>v · flags · n · q</b><span>version, 4:2:0, channels, quality</span></li>
+            <li style="--w: 8"><b>width · height</b><span>u32 each</span></li>
+            <li style="--w: 12"><b>quant tables</b><span>64 B per luma / chroma</span></li>
+            <li style="--w: 14"><b>Huffman tables</b><span>DC + AC, canonical</span></li>
+            <li style="--w: 30"><b>payload</b><span>Y blocks, then Cb, then Cr</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ checks -->
+    <section class="section" id="checks">
+      <header class="section-head">
+        <p class="kicker">05 · Verified</p>
+        <h2>The browser runs the same C</h2>
+        <p>Each check below runs a call of the engine here, in WebAssembly, and compares a hash of its output with the native build's (made by <code>make site-data</code>). The first group compares against the files written by the original compressor this project grew from.</p>
+      </header>
+      <div class="checks-head">
+        <p class="checks-summary" data-checks-summary>Checks run when this section comes into view.</p>
+        <button class="button" type="button" data-checks-run>Run again</button>
+      </div>
+      <div class="checks" data-checks></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <svg class="logo" viewBox="0 0 8 8" aria-hidden="true" shape-rendering="crispEdges">
+        <path class="logo-spark" d="M5 0h1v1H5zM4 1h1v1H4zM6 1h1v1H6zM5 2h1v1H5z"/>
+        <path class="logo-anvil" d="M0 3h7v1H0zM1 4h6v1H1zM3 5h2v1H3zM2 6h4v1H2zM1 7h6v1H1z"/>
+        <path class="logo-horn" d="M0 3h2v1H0z"/>
+      </svg>
+      <span>PIXELSMITH</span>
+      <small data-version></small>
+    </div>
+    <p>Free and open source under the <a href="https://github.com/castlelli/algorithms/blob/main/LICENSE">MIT license</a>. <a href="https://github.com/castlelli/algorithms/tree/main/pixelsmith">Source on GitHub</a>. Made by <a href="https://castlelli.github.io/#work">Vinicius Castelli</a>.</p>
+    <p class="credits">Sample photos: Kodak Lossless True Color Image Suite. Fonts: Pixelify Sans and Silkscreen (SIL OFL), Geist (SIL OFL). Image files are read and written with the stb libraries (public domain).</p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
