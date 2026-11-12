@@ -1,0 +1,541 @@
+{
+ "url": "https://castlelli.github.io/algorithms/hypocycloid/",
+ "cores": {
+  "curva": "#1B3A6B",
+  "aro": "#8A94A6",
+  "disco": "#B4532A",
+  "ponto": "#D1495B",
+  "tau": "#0072B2",
+  "n": "#D55E00",
+  "b": "#009E73",
+  "v": "#0E7C86",
+  "a": "#B8336A",
+  "a_t": "#E69F00",
+  "a_n": "#CC79A7",
+  "rho": "#7B5EA7"
+ },
+ "entradas": {
+  "R": 5.0,
+  "r": 1.0,
+  "razoes": [
+   3.0,
+   4.0,
+   5.0,
+   3.5
+  ],
+  "omega": 0.0523598775598299,
+  "instantes": [
+   10.0,
+   30.0,
+   50.0
+  ],
+  "lambdas": [
+   -1.0,
+   0.5,
+   1.0
+  ]
+ },
+ "hipocicloide": {
+  "p": 5,
+  "q": 1,
+  "theta_max": 6.28318530717959,
+  "arco_bico": 6.4,
+  "comprimento": 32.0,
+  "periodo": 120.0
+ },
+ "razoes": [
+  {
+   "razao": 3.0,
+   "p": 3,
+   "q": 1,
+   "fecha": true,
+   "comprimento": 16.0
+  },
+  {
+   "razao": 4.0,
+   "p": 4,
+   "q": 1,
+   "fecha": true,
+   "comprimento": 24.0
+  },
+  {
+   "razao": 5.0,
+   "p": 5,
+   "q": 1,
+   "fecha": true,
+   "comprimento": 32.0
+  },
+  {
+   "razao": 3.5,
+   "p": 7,
+   "q": 2,
+   "fecha": true,
+   "comprimento": 40.0
+  }
+ ],
+ "rho": [
+  {
+   "theta": 0.179519580205131,
+   "posicao": [
+    4.68878982039813,
+    0.056288853254834
+   ],
+   "rho": 2.31404660862698,
+   "rho_geral": 2.31404660862698
+  },
+  {
+   "theta": 1.07711748123079,
+   "posicao": [
+    1.50244961823807,
+    4.4419098999784
+   ],
+   "rho": 2.31404660862698,
+   "rho_geral": 2.31404660862698
+  },
+  {
+   "theta": 1.61567622184618,
+   "posicao": [
+    0.80447026719657,
+    3.81741537136662
+   ],
+   "rho": 4.16976790649616,
+   "rho_geral": 4.16976790649616
+  },
+  {
+   "theta": 3.05183286348723,
+   "posicao": [
+    -3.04766230534122,
+    0.709932059695078
+   ],
+   "rho": 5.19961553163639,
+   "rho_geral": 5.19961553163639
+  },
+  {
+   "theta": 4.48798950512828,
+   "posicao": [
+    -0.266593933966525,
+    -3.11788016625926
+   ],
+   "rho": 5.19961553163639,
+   "rho_geral": 5.19961553163639
+  },
+  {
+   "theta": 5.92414614676932,
+   "posicao": [
+    3.8791727483766,
+    -0.414549534557437
+   ],
+   "rho": 4.16976790649616,
+   "rho_geral": 4.16976790649616
+  }
+ ],
+ "versores": [
+  {
+   "theta": 0.139626340159546,
+   "posicao": [
+    4.80912037112271,
+    0.0267731396070569
+   ],
+   "tau": [
+    -0.978147600733806,
+    0.207911690817759
+   ],
+   "n": [
+    0.207911690817759,
+    0.978147600733806
+   ]
+  },
+  {
+   "theta": 0.837758040957278,
+   "posicao": [
+    1.69837482470163,
+    3.18049099272734
+   ],
+   "tau": [
+    -0.309016994374948,
+    0.951056516295154
+   ],
+   "n": [
+    0.951056516295154,
+    0.309016994374948
+   ]
+  },
+  {
+   "theta": 1.53588974175501,
+   "posicao": [
+    1.12986605555157,
+    4.13673640903645
+   ],
+   "tau": [
+    -0.669130606358858,
+    -0.743144825477394
+   ],
+   "n": [
+    -0.743144825477394,
+    0.669130606358858
+   ]
+  },
+  {
+   "theta": 2.23402144255274,
+   "posicao": [
+    -3.34559349416156,
+    2.682571451641
+   ],
+   "tau": [
+    -0.978147600733806,
+    0.207911690817759
+   ],
+   "n": [
+    0.207911690817759,
+    0.978147600733806
+   ]
+  },
+  {
+   "theta": 2.93215314335047,
+   "posicao": [
+    -3.24345979657636,
+    1.57479158874843
+   ],
+   "tau": [
+    0.309016994374947,
+    -0.951056516295154
+   ],
+   "n": [
+    -0.951056516295154,
+    -0.309016994374947
+   ]
+  },
+  {
+   "theta": 3.63028484414821,
+   "posicao": [
+    -3.90639696485162,
+    -2.80507010571035
+   ],
+   "tau": [
+    -0.669130606358858,
+    -0.743144825477395
+   ],
+   "n": [
+    -0.743144825477395,
+    0.669130606358858
+   ]
+  },
+  {
+   "theta": 4.32841654494594,
+   "posicao": [
+    -1.46352687696115,
+    -2.70934459124805
+   ],
+   "tau": [
+    0.978147600733806,
+    -0.207911690817759
+   ],
+   "n": [
+    -0.207911690817759,
+    -0.978147600733806
+   ]
+  },
+  {
+   "theta": 5.7246799465414,
+   "posicao": [
+    2.77653090930005,
+    -1.3316663033261
+   ],
+   "tau": [
+    0.669130606358858,
+    0.743144825477394
+   ],
+   "n": [
+    0.743144825477394,
+    -0.669130606358858
+   ]
+  }
+ ],
+ "instantes": [
+  {
+   "t": 10.0,
+   "theta": 0.523598775598299,
+   "posicao": [
+    2.96410161513776,
+    1.13397459621556
+   ],
+   "v": [
+    -0.286099691543082,
+    0.286099691543081
+   ],
+   "a": [
+    0.0124354229617029,
+    0.0325050114955996
+   ],
+   "rapidez": 0.404606063970985,
+   "a_t": 0.0141913421479421,
+   "a_n": 0.0317776859542282,
+   "rho": 5.15160440687503,
+   "tau": [
+    -0.707106781186548,
+    0.707106781186547
+   ],
+   "n": [
+    0.707106781186547,
+    0.707106781186548
+   ]
+  },
+  {
+   "t": 30.0,
+   "theta": 1.5707963267949,
+   "posicao": [
+    1.0,
+    4.0
+   ],
+   "v": [
+    -0.209439510239319,
+    -0.20943951023932
+   ],
+   "a": [
+    -0.043864908449286,
+    -0.0109662271123215
+   ],
+   "rapidez": 0.296192195877224,
+   "a_t": 0.0387714677757715,
+   "a_n": 0.0232628806654629,
+   "rho": 3.77123616632825,
+   "tau": [
+    -0.707106781186547,
+    -0.707106781186547
+   ],
+   "n": [
+    -0.707106781186547,
+    0.707106781186547
+   ]
+  },
+  {
+   "t": 50.0,
+   "theta": 2.61799387799149,
+   "posicao": [
+    -3.96410161513776,
+    2.86602540378444
+   ],
+   "v": [
+    0.0766601813037618,
+    -0.0766601813037617
+   ],
+   "a": [
+    0.0314294854875832,
+    -0.0434712386079211
+   ],
+   "rapidez": 0.10841386809376,
+   "a_t": 0.0529628099237137,
+   "a_n": 0.00851480528876524,
+   "rho": 1.38036824054677,
+   "tau": [
+    0.707106781186548,
+    -0.707106781186547
+   ],
+   "n": [
+    -0.707106781186547,
+    -0.707106781186548
+   ]
+  }
+ ],
+ "frenet": [
+  {
+   "lambda": -1.0,
+   "posicao": [
+    -1.0,
+    1.0,
+    -1.0
+   ],
+   "tau": [
+    0.267261241912424,
+    -0.534522483824849,
+    0.801783725737273
+   ],
+   "n": [
+    0.674453273433462,
+    -0.490511471587973,
+    -0.551825405536469
+   ],
+   "b": [
+    0.688247201611685,
+    0.688247201611685,
+    0.229415733870562
+   ],
+   "curvatura": 0.166423535003062,
+   "rho": 6.00876552695266,
+   "torcao": 0.157894736842105
+  },
+  {
+   "lambda": 0.5,
+   "posicao": [
+    0.5,
+    0.25,
+    0.125
+   ],
+   "tau": [
+    0.624695047554424,
+    0.624695047554424,
+    0.468521285665818
+   ],
+   "n": [
+    -0.679864040786405,
+    0.139972008397201,
+    0.719856043185605
+   ],
+   "b": [
+    0.384110639798688,
+    -0.768221279597376,
+    0.512147519731584
+   ],
+   "curvatura": 0.952004740039499,
+   "rho": 1.05041493801649,
+   "torcao": 0.786885245901639
+  },
+  {
+   "lambda": 1.0,
+   "posicao": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tau": [
+    0.267261241912424,
+    0.534522483824849,
+    0.801783725737273
+   ],
+   "n": [
+    -0.674453273433462,
+    -0.490511471587973,
+    0.551825405536469
+   ],
+   "b": [
+    0.688247201611685,
+    -0.688247201611685,
+    0.229415733870562
+   ],
+   "curvatura": 0.166423535003062,
+   "rho": 6.00876552695266,
+   "torcao": 0.157894736842105
+  }
+ ],
+ "checagens": [
+  {
+   "chave": "fecha",
+   "descricao": "Curva fecha após $2\\pi q$: $|P(2\\pi q) - P(0)|/R$",
+   "valor": 0.0,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "comprimento",
+   "descricao": "Comprimento: quadratura de $\\int|\\mathbf{r}'|\\,d\\theta$ contra $8pr(R-r)/R$ (erro relativo)",
+   "valor": 3.66373598126302e-15,
+   "tolerancia": 1e-06,
+   "aprovado": true
+  },
+  {
+   "chave": "tau_unitario",
+   "descricao": "$\\max\\,\\bigl||\\boldsymbol{\\tau}| - 1\\bigr|$",
+   "valor": 2.22044604925031e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "tau_n",
+   "descricao": "$\\max\\,|\\boldsymbol{\\tau}\\cdot\\mathbf{n}|$",
+   "valor": 0.0,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "rho_fechado",
+   "descricao": "$\\rho$ geral $|\\mathbf{r}'|^3/|x'y''-y'x''|$ contra $\\frac{4r(R-r)}{|R-2r|}\\,|\\sin\\frac{R\\theta}{2r}|$ (erro relativo)",
+   "valor": 2.96566058484089e-13,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "frenet_plano",
+   "descricao": "$d\\boldsymbol{\\tau}/ds = \\mathbf{n}/\\rho$ por derivada numérica (erro relativo)",
+   "valor": 1.9841528022653e-11,
+   "tolerancia": 1e-06,
+   "aprovado": true
+  },
+  {
+   "chave": "rolamento",
+   "descricao": "Rolamento sem escorregar: $\\mathbf{v}\\perp\\overline{IP}$ e $|\\mathbf{v}| = |\\Omega|\\,\\overline{IP}$ (erro relativo)",
+   "valor": 3.33067010216583e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "derivada_v",
+   "descricao": "$d\\mathbf{r}/dt$ numérica contra $\\mathbf{v} = \\omega\\,\\mathbf{r}'(\\theta)$ (erro relativo)",
+   "valor": 3.67150674677026e-12,
+   "tolerancia": 1e-06,
+   "aprovado": true
+  },
+  {
+   "chave": "derivada_a",
+   "descricao": "$d\\mathbf{v}/dt$ numérica contra $\\mathbf{a} = \\omega^2\\,\\mathbf{r}''(\\theta)$ (erro relativo)",
+   "valor": 3.56686273237419e-12,
+   "tolerancia": 1e-06,
+   "aprovado": true
+  },
+  {
+   "chave": "intrinseca",
+   "descricao": "$a_t\\boldsymbol{\\tau} + a_n\\mathbf{n} = \\mathbf{a}$ (erro relativo)",
+   "valor": 5.36928032383617e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "an_rho",
+   "descricao": "$a_n = |\\mathbf{v}|^2/\\rho$ (erro relativo)",
+   "valor": 2.76443907752725e-15,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "frenet_ortonormal",
+   "descricao": "Triedro ortonormal: $\\max|MM^{\\mathsf T} - I|$, $M = [\\boldsymbol{\\tau}\\ \\mathbf{n}\\ \\mathbf{b}]$",
+   "valor": 4.44089209850063e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "frenet_direto",
+   "descricao": "Triedro direto: $|\\boldsymbol{\\tau}\\times\\mathbf{n} - \\mathbf{b}|$",
+   "valor": 2.29298686175415e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "rho_3d",
+   "descricao": "$\\rho = |\\mathbf{r}'|^3/|\\mathbf{r}'\\times\\mathbf{r}''|$ contra a forma fechada em $\\lambda$ (erro relativo)",
+   "valor": 7.91522646635563e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "torcao",
+   "descricao": "Torção $(\\mathbf{r}'\\times\\mathbf{r}'')\\cdot\\mathbf{r}'''/|\\mathbf{r}'\\times\\mathbf{r}''|^2$ contra $3/(1+9\\lambda^2+9\\lambda^4)$",
+   "valor": 6.03635659975528e-16,
+   "tolerancia": 1e-09,
+   "aprovado": true
+  },
+  {
+   "chave": "serret_tau",
+   "descricao": "Frenet–Serret: $d\\boldsymbol{\\tau}/ds = \\kappa\\,\\mathbf{n}$ (derivada numérica)",
+   "valor": 2.01380153463151e-11,
+   "tolerancia": 1e-06,
+   "aprovado": true
+  },
+  {
+   "chave": "serret_b",
+   "descricao": "Frenet–Serret: $d\\mathbf{b}/ds = -\\tau_\\mathrm{tor}\\,\\mathbf{n}$ (derivada numérica)",
+   "valor": 1.03496767125921e-10,
+   "tolerancia": 1e-06,
+   "aprovado": true
+  }
+ ]
+}
