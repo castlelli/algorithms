@@ -10,6 +10,17 @@ locally, and no image is uploaded.
 
 ## Build
 
+To fetch only this folder, not the rest of the repository:
+
+```sh
+git clone --depth 1 --filter=blob:none --sparse https://github.com/castlelli/algorithms
+cd algorithms
+git sparse-checkout set pixelsmith
+cd pixelsmith
+```
+
+Then:
+
 ```sh
 make            # ./pixelsmith
 make test       # unit tests and a CLI smoke test, with AddressSanitizer and UBSan

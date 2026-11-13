@@ -260,8 +260,10 @@
       <div class="cli-grid">
         <div class="panel code">
           <header><span>Build</span><button class="copy" type="button" data-copy>Copy</button></header>
-<pre><code>git clone https://github.com/castlelli/algorithms
-cd algorithms/pixelsmith
+<pre><code>git clone --depth 1 --filter=blob:none --sparse https://github.com/castlelli/algorithms
+cd algorithms
+git sparse-checkout set pixelsmith
+cd pixelsmith
 make          # builds ./pixelsmith
 make test     # unit tests, with sanitizers</code></pre>
         </div>
